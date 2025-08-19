@@ -163,7 +163,7 @@ In a benchmark test that simulates a real-world scenario by calling a dispatch f
 If you find `redux-lite` helpful and would like to support its development, please consider:
 
 - Giving a ⭐️ on [GitHub](https://github.com/oldbig/redux-lite)
-- [Buying me a coffee](https://www.buymeacoffee.com/your-link-here)
+- [Buying me a coffee](https://buymeacoffee.com/oldbig)
 
 Your support is greatly appreciated!
 

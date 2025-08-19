@@ -164,6 +164,11 @@ const MyComponent = () => {
 
 - 在 [GitHub](https://github.com/oldbig/redux-lite) 上给一个 ⭐️
 - [请我喝杯咖啡](https://www.buymeacoffee.com/your-link-here)
+- <details>
+    <summary>通过微信赞赏</summary>
+    <br>
+    <img src="assets/wechat-donate.png" width="200" alt="微信赞赏二维码">
+  </details>
 
 非常感谢您的支持！
 
