@@ -19,15 +19,15 @@
     "hooks",
     "lightweight"
   ],
-  "author": "Your Name <your-email@example.com>",
+  "author": "oldbig",
   "license": "MIT",
-  "homepage": "https://github.com/your-username/redux-lite#readme",
+  "homepage": "https://github.com/oldbig/redux-lite#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/redux-lite.git"
+    "url": "https://github.com/oldbig/redux-lite.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/redux-lite/issues"
+    "url": "https://github.com/oldbig/redux-lite/issues"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

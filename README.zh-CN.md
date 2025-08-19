@@ -162,7 +162,7 @@ const MyComponent = () => {
 
 如果您觉得 `redux-lite` 对您有帮助，并希望支持本项目的开发，请考虑：
 
-- 在 [GitHub](https://github.com/your-username/redux-lite) 上给一个 ⭐️
+- 在 [GitHub](https://github.com/oldbig/redux-lite) 上给一个 ⭐️
 - [请我喝杯咖啡](https://www.buymeacoffee.com/your-link-here)
 
 非常感谢您的支持！
