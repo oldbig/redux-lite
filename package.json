@@ -1,6 +1,6 @@
 {
   "name": "@oldbig/redux-lite",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A lightweight, zero-dependency, type-safe state management library for React.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -9,6 +9,7 @@
     "build": "tsup src/index.tsx --format cjs,esm --dts",
     "dev": "tsup src/index.tsx --format cjs,esm --dts --watch",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage && make-coverage-badge --report-path coverage/coverage-summary.json --output-path assets/coverage.svg",
     "bench": "vitest bench"
   },
   "keywords": [
@@ -36,6 +37,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/react": "^18.0.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "jsdom": "^26.1.0",
     "react": "^18.0.0",
     "tsup": "^8.0.0",

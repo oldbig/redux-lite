@@ -4,10 +4,11 @@
 
 [![npm version](https://img.shields.io/npm/v/@oldbig/redux-lite.svg)](https://www.npmjs.com/package/@oldbig/redux-lite)
 [![license](https://img.shields.io/npm/l/@oldbig/redux-lite.svg)](LICENSE)
+[![coverage badge](assets/coverage.svg)](./coverage/index.html)
 
 **A lightweight, zero-dependency, type-safe state management library for React.**
 
-`redux-lite` offers a modern, simple, and highly performant state management solution, designed to provide an excellent developer experience with TypeScript.
+`redux-lite` offers a modern, simple, and highly performant state management solution, designed to provide an excellent developer experience with TypeScript. Unit testing your components is now unimaginably easy.
 
 ## Core Features
 
@@ -15,6 +16,7 @@
 - **⚡️ High Performance**: Avoids unnecessary re-renders by design through smart value comparisons.
 - **✨ Simple & Intuitive API**: A minimal API that is easy to learn and use.
 - **🔒 Fully Type-Safe**: End-to-end type safety, from store definition to dispatchers, with excellent autocompletion.
+- **✅ Unbelievably Easy Testing**: A flexible provider makes mocking state for unit tests trivial.
 
 ## Installation
 
@@ -101,8 +103,8 @@ const MyComponent = () => {
       </button>
 
       {/* Partial update */}
-      <button onClick={() => dispatchPartialUser({ age: user.age + 1 })}>
-        Increment Age
+      <button onClick={() => dispatchPartialUser({ age: 35 })}>
+        Update Age
       </button>
 
       {/* Functional update with access to the full store */}
@@ -157,6 +159,64 @@ In a benchmark test that simulates a real-world scenario by calling a dispatch f
 | **Performance**      | Highly performant, but relies on memoized selectors (`reselect`). | Built-in. Automatically prevents updates if values are deeply equal.        |
 | **Dependencies**     | `@reduxjs/toolkit` and `react-redux`.                           | **None**. Only `react` as a peer dependency.                                |
 | **Simplicity**       | Steeper learning curve.                                         | Extremely simple. If you know React hooks, you know `redux-lite`.           |
+
+<details>
+<summary>Testing Your Components</summary>
+
+`redux-lite` makes testing components that use the store incredibly simple. The `ReduxLiteProvider` accepts an `initStore` prop, which allows you to provide a deep partial state to override the default initial state for your tests.
+
+This means you don't need to dispatch actions to set up your desired test state. You can directly render your component with the exact state it needs.
+
+### Example
+
+Here's how you can easily mock state for your components:
+
+```tsx
+import { render } from '@testing-library/react';
+import { initiate } from '@oldbig/redux-lite';
+import React from 'react';
+
+// Assume this is your initial store configuration
+const INIT_STORE = {
+  user: { name: 'Guest', age: 0, profile: { theme: 'dark' } },
+  isAuthenticated: false,
+};
+
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+
+// --- Your Component ---
+const UserProfile: React.FC = () => {
+  const { user } = useReduxLiteStore();
+  return <div>Welcome, {user.name} (Theme: {user.profile.theme})</div>;
+};
+
+// --- Your Test ---
+it('should display the authenticated user name with overridden profile', () => {
+  const { getByText } = render(
+    <ReduxLiteProvider initStore={{ user: { name: 'Alice', profile: { theme: 'light' } }, isAuthenticated: true }}>
+      <UserProfile />
+    </ReduxLiteProvider>
+  );
+
+  // The component renders with the exact state you provided
+  expect(getByText('Welcome, Alice (Theme: light)')).toBeInTheDocument();
+});
+
+it('should shallow merge user slice and replace nested objects', () => {
+  const { getByText } = render(
+    <ReduxLiteProvider initStore={{ user: { name: 'Bob' } }}>
+      <UserProfile />
+    </ReduxLiteProvider>
+  );
+
+  // user.name is overridden, user.age remains default, user.profile is untouched
+  expect(getByText('Welcome, Bob (Theme: dark)')).toBeInTheDocument();
+});
+```
+
+You can easily test your components in different states without any complex setup or mocking.
+
+</details>
 
 ## Support This Project
 

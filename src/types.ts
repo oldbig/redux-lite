@@ -78,3 +78,15 @@ export type Dispatchers<T> = {
  * It combines the state slices with their corresponding dispatchers.
  */
 export type ReduxLiteStore<T> = T & Dispatchers<T>;
+/**
+ * A utility type to make all properties of an object, including nested objects, optional.
+ * This is useful for the `initStore` prop of the provider, allowing partial overrides.
+ */
+/**
+ * A type for the `initStore` prop of the provider. It allows each state slice
+ * to be optional, and for object-based slices, their properties are also optional.
+ * This enables shallow merging of initial state overrides.
+ */
+export type StateOverride<T> = {
+  [K in keyof T]?: T[K] extends object ? Partial<T[K]> : T[K];
+};

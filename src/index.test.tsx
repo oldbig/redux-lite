@@ -1,21 +1,22 @@
+import { vi } from 'vitest';
 import { describe, it, expect } from 'vitest';
 import { render, act } from '@testing-library/react';
-import { initiate, optional } from './index';
+import { initiate } from './index';
 import React from 'react';
+import { optional } from './utils';
 
 const INIT_STORE = {
-  user: { name: 'Jhon', age: 30 },
+  user: { name: 'Jhon', age: 30, data: { name: 'data-test', value: 111 } },
   task: optional({ id: 1, title: 'Test' }),
   count: 6,
 };
 
 // Define a reusable type for the store hook return value
-import { ReduxLiteStore, StateFromInit } from './types';
+import { ReduxLiteStore, StateFromInit, StateOverride } from './types';
 
-// Define a reusable type for the store hook return value
 type StoreHook = ReduxLiteStore<StateFromInit<typeof INIT_STORE>>;
 
-describe('redux-lite', () => {
+describe('redux-lite core functionality', () => {
   it('should initialize with correct initial state', () => {
     const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
     let store: StoreHook | null = null;
@@ -30,6 +31,8 @@ describe('redux-lite', () => {
     );
     expect(store).not.toBeNull();
     expect(store!.user.name).toBe('Jhon');
+    expect(store!.user.age).toBe(30);
+    expect(store!.user.data).toEqual({ name: 'data-test', value: 111 });
     expect(store!.task?.title).toBe('Test');
     expect(store!.count).toBe(6);
   });
@@ -39,7 +42,7 @@ describe('redux-lite', () => {
     let store: StoreHook | null = null;
     const TestComponent = () => {
       store = useReduxLiteStore();
-      return <button onClick={() => store!.dispatchUser({ name: 'Ken', age: 31 })}>Update Full</button>;
+      return <button onClick={() => store!.dispatchUser({ name: 'Ken', age: 31, data: { name: 'new-data', value: 222 } })}>Update Full</button>;
     };
     const { getByText } = render(
       <ReduxLiteProvider>
@@ -52,6 +55,7 @@ describe('redux-lite', () => {
     expect(store).not.toBeNull();
     expect(store!.user.name).toBe('Ken');
     expect(store!.user.age).toBe(31);
+    expect(store!.user.data).toEqual({ name: 'new-data', value: 222 });
   });
 
   it('should dispatch partial updates correctly', () => {
@@ -72,6 +76,7 @@ describe('redux-lite', () => {
     expect(store).not.toBeNull();
     expect(store!.user.name).toBe('Jhon'); // Should remain unchanged
     expect(store!.user.age).toBe(32);
+    expect(store!.user.data).toEqual({ name: 'data-test', value: 111 }); // Should remain unchanged
   });
 
   it('should handle functional updates correctly', () => {
@@ -120,7 +125,7 @@ describe('redux-lite', () => {
     const TestComponent = () => {
       renderCount++;
       store = useReduxLiteStore();
-      return <button onClick={() => store!.dispatchUser({ name: 'Jhon', age: 30 })}>Update Same</button>;
+      return <button onClick={() => store!.dispatchUser({ name: 'Jhon', age: 30, data: { name: 'data-test', value: 111 } })}>Update Same</button>;
     };
     const { getByText } = render(
       <ReduxLiteProvider>
@@ -167,4 +172,128 @@ describe('redux-lite', () => {
     // Initial age was 30, counter was set to 10, task.id is 1. New age should be 41.
     expect(store!.user.age).toBe(41);
   });
+
+  it('should override initial state with shallow merge for object slices and replace for nested objects', () => {
+    const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
+    let store: StoreHook | null = null;
+    const TestComponent = () => {
+      store = useReduxLiteStore();
+      return null;
+    };
+    render(
+      <ReduxLiteProvider initStore={{ count: 1, user: { age: 10 }, task: undefined }}>
+        <TestComponent />
+      </ReduxLiteProvider>
+    );
+    expect(store).not.toBeNull();
+    expect(store!.count).toBe(1);
+    expect(store!.user.name).toBe('Jhon');
+    expect(store!.user.age).toBe(10);
+    expect(store!.user.data).toEqual({ name: 'data-test', value: 111 });
+    expect(store!.task).toBeUndefined();
+  });
+
+  it('should replace nested objects completely when provided in initStore', () => {
+    const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
+    let store: StoreHook | null = null;
+    const TestComponent = () => {
+      store = useReduxLiteStore();
+      return null;
+    };
+    render(
+      <ReduxLiteProvider initStore={{ count: 11, task: { id: 2, title: 'new task' }, user: { data: { name: 'new-data-name', value: 222 } } }}>
+        <TestComponent />
+      </ReduxLiteProvider>
+    );
+    expect(store).not.toBeNull();
+    expect(store!.count).toBe(11);
+    expect(store!.user.name).toBe('Jhon');
+    expect(store!.user.age).toBe(30);
+    expect(store!.user.data).toEqual({ name: 'new-data-name', value: 222 });
+    expect(store!.task).toEqual({ id: 2, title: 'new task' });
+  });
+
+  it('should throw an error when useReduxLiteStore is used outside of a ReduxLiteProvider', () => {
+    const { useReduxLiteStore } = initiate(INIT_STORE);
+    const TestComponent = () => {
+      useReduxLiteStore();
+      return null;
+    };
+    // Suppress the expected error from being logged to the console
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => render(<TestComponent />)).toThrow('useReduxLiteStore must be used within a ReduxLiteProvider.');
+    spy.mockRestore();
+  });
+
+  describe('Test Utils Pattern - Simplified', () => {
+    const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
+
+    const UserDisplay: React.FC = () => {
+      const { user } = useReduxLiteStore();
+      return <div>User: {user.name}</div>;
+    };
+
+    it('should render with default initial state', () => {
+      const { getByText } = render(
+        <ReduxLiteProvider>
+          <UserDisplay />
+        </ReduxLiteProvider>
+      );
+      expect(getByText('User: Jhon')).not.toBeNull();
+    });
+
+    it('should render with mocked state', () => {
+      const { getByText } = render(
+        <ReduxLiteProvider initStore={{ user: { name: 'Mocked User' } }}>
+          <UserDisplay />
+        </ReduxLiteProvider>
+      );
+      expect(getByText('User: Mocked User')).not.toBeNull();
+    });
+  });
 });
+describe('reducer branch coverage', () => {
+    it('should return the original state if a partial update results in an equal slice', async () => {
+      const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
+      const utils = await import('./utils');
+      const spy = vi.spyOn(utils, 'isEqual').mockReturnValue(true);
+
+      let store: StoreHook | null = null;
+      let renderCount = 0;
+      const TestComponent = () => {
+        renderCount++;
+        store = useReduxLiteStore();
+        return <button onClick={() => store!.dispatchPartialUser({ age: 30 })}>Update</button>;
+      };
+      const { getByText } = render(<ReduxLiteProvider><TestComponent /></ReduxLiteProvider>);
+      
+      act(() => {
+        getByText('Update').click();
+      });
+
+      expect(renderCount).toBe(1);
+      spy.mockRestore();
+    });
+
+    it('should return the original state if a full update results in an equal slice', async () => {
+      const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE);
+      const utils = await import('./utils');
+      const spy = vi.spyOn(utils, 'isEqual').mockReturnValue(true);
+      
+      let store: StoreHook | null = null;
+      let renderCount = 0;
+      const TestComponent = () => {
+        renderCount++;
+        store = useReduxLiteStore();
+        return <button onClick={() => store!.dispatchUser({ name: 'Jhon', age: 30, data: { name: 'data-test', value: 111 } })}>Update</button>;
+      };
+      const { getByText } = render(<ReduxLiteProvider><TestComponent /></ReduxLiteProvider>);
+      
+      act(() => {
+        getByText('Update').click();
+      });
+
+      expect(renderCount).toBe(1);
+      spy.mockRestore();
+    });
+  });

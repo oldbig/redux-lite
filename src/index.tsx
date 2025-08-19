@@ -1,33 +1,6 @@
-import { OPTIONAL_SYMBOL, OptionalValue } from './types';
-
-/**
- * Marks a value in the initial store as optional.
- * This allows the property to be undefined in the state.
- *
- * @param initialValue The initial value of the property (optional).
- * @returns An object that signals the property is optional.
- */
-export function optional<T>(initialValue?: T): OptionalValue<T> {
-  return {
-    [OPTIONAL_SYMBOL]: true,
-    value: initialValue,
-  };
-}
-
-import { StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore } from './types';
+import { OPTIONAL_SYMBOL, OptionalValue, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride } from './types';
+import { isEqual, mergeState, optional } from './utils';
 import React, { createContext, useContext, useReducer, useMemo } from 'react';
-
-// A simple deep-equal check for performance optimization.
-function isEqual(objA: any, objB: any): boolean {
-  // Use JSON.stringify for a simple but effective deep comparison, especially for debugging.
-  // Note: This has limitations (e.g., with undefined, functions, symbol keys), but is sufficient for our current data structures.
-  if (objA === objB) return true;
-  try {
-    return JSON.stringify(objA) === JSON.stringify(objB);
-  } catch (e) {
-    return false;
-  }
-}
 
 export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
   // 1. Create the initial state by unwrapping optional values
@@ -62,6 +35,7 @@ export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
         };
       }
       // If not an object, fall back to a full update for this slice.
+      // Covered by reducer should fall back to full update if isPartial and newSlice is not an object test
     }
 
     if (isEqual(oldSlice, newSlice)) {
@@ -82,20 +56,14 @@ export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
 
   const ReduxLiteProvider: React.FC<{
     children: React.ReactNode;
-    initStore?: T; // Allow overriding initial store via props
+    initStore?: StateOverride<StateFromInit<T>>; // Allow shallow overrides of slices
   }> = ({ children, initStore: propInitStore }) => {
-    // Use prop-provided store if available, otherwise use the one from the closure
-    const finalInitialState = propInitStore
-      ? Object.keys(propInitStore).reduce((acc, key) => {
-          const value = propInitStore[key as keyof T];
-          if (value && value[OPTIONAL_SYMBOL]) {
-            acc[key as keyof T] = value.value;
-          } else {
-            acc[key as keyof T] = value;
-          }
-          return acc;
-        }, {} as StateFromInit<T>)
-      : initialState;
+    const finalInitialState = useMemo(() => {
+      if (propInitStore) {
+        return mergeState(initialState, propInitStore);
+      }
+      return initialState;
+    }, [propInitStore]);
 
     const [state, dispatch] = useReducer(reducer, finalInitialState);
 

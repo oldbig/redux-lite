@@ -4,10 +4,11 @@
 
 [![npm version](https://img.shields.io/npm/v/@oldbig/redux-lite.svg)](https://www.npmjs.com/package/@oldbig/redux-lite)
 [![license](https://img.shields.io/npm/l/@oldbig/redux-lite.svg)](LICENSE)
+[![coverage badge](assets/coverage.svg)](./coverage/index.html)
 
 **一个为 React 量身打造的、零依赖、类型安全、轻量级的状态管理库。**
 
-`redux-lite` 提供了一个现代、简洁且高性能的状态管理方案，旨在通过 TypeScript 提供顶级的开发体验。
+`redux-lite` 提供了一个现代、简洁且高性能的状态管理方案，旨在通过 TypeScript 提供顶级的开发体验。现在，对您的 React 组件进行单元测试变得简单到超乎想象。
 
 ## 核心特性
 
@@ -15,6 +16,7 @@
 - **⚡️ 高性能**：通过智能的值比较，从设计上避免不必要的组件重复渲染。
 - **✨ 简洁直观的 API**：极简的 API，易于学习和使用。
 - **🔒 完全类型安全**：从 store 定义到 dispatchers，提供端到端的类型安全和卓越的自动补全体验。
+- **✅ 难以置信的简单测试**：灵活的 Provider 让模拟单元测试的 state 变得轻而易举。
 
 ## 安装
 
@@ -101,7 +103,7 @@ const MyComponent = () => {
       </button>
 
       {/* 部分更新 */}
-      <button onClick={() => dispatchPartialUser({ age: user.age + 1 })}>
+      <button onClick={() => dispatchPartialUser({ age: 35 })}>
         增加年龄
       </button>
 
@@ -157,6 +159,64 @@ const MyComponent = () => {
 | **性能**     | 高性能，但依赖记忆化的 selectors (`reselect`)。          | **内置**。如果值深度相等，自动阻止更新。                      |
 | **依赖**     | 需要 `@reduxjs/toolkit` 和 `react-redux`。                 | **无**。仅 `react` 作为对等依赖。                             |
 | **简洁性**   | 学习曲线较陡峭。                                         | 极其简单。如果你了解 React hooks，你就懂得 `redux-lite`。       |
+
+<details>
+<summary>测试你的组件</summary>
+
+`redux-lite` 让测试使用 store 的组件变得极其简单。`ReduxLiteProvider` 接受一个 `initStore` prop，它允许你提供一个深度的部分状态（deep partial state）来覆盖测试的默认初始状态。
+
+这意味着你不再需要派发 action 来设置你期望的测试状态。你可以直接用它所需要的确切状态来渲染你的组件。
+
+### 示例
+
+以下是如何轻松地为你的组件模拟状态：
+
+```tsx
+import { render } from '@testing-library/react';
+import { initiate } from '@oldbig/redux-lite';
+import React from 'react';
+
+// 假设这是你的初始 store 配置
+const INIT_STORE = {
+  user: { name: 'Guest', age: 0, profile: { theme: 'dark' } },
+  isAuthenticated: false,
+};
+
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+
+// --- 你的组件 ---
+const UserProfile: React.FC = () => {
+  const { user } = useReduxLiteStore();
+  return <div>欢迎, {user.name} (主题: {user.profile.theme})</div>;
+};
+
+// --- 你的测试 ---
+it('应该显示已认证用户的名称，并覆盖了 profile', () => {
+  const { getByText } = render(
+    <ReduxLiteProvider initStore={{ user: { name: 'Alice', profile: { theme: 'light' } }, isAuthenticated: true }}>
+      <UserProfile />
+    </ReduxLiteProvider>
+  );
+
+  // 组件会使用你提供的确切状态进行渲染
+  expect(getByText('欢迎, Alice (主题: light)')).toBeInTheDocument();
+});
+
+it('应该浅合并 user 切片并替换嵌套对象', () => {
+  const { getByText } = render(
+    <ReduxLiteProvider initStore={{ user: { name: 'Bob' } }}>
+      <UserProfile />
+    </ReduxLiteProvider>
+  );
+
+  // user.name 被覆盖，user.age 保持默认，user.profile 不受影响
+  expect(getByText('欢迎, Bob (主题: dark)')).toBeInTheDocument();
+});
+```
+
+你可以轻松地在不同状态下测试你的组件，而无需任何复杂的设置或模拟。
+
+</details>
 
 ## 支持本项目
 
