@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "redux-lite": "file:../.."
+    "@oldbig/redux-lite": "file:../.."
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

@@ -2,8 +2,8 @@
 
 [English](README.md)
 
-[![npm version](https://img.shields.io/npm/v/redux-lite.svg)](https://www.npmjs.com/package/redux-lite)
-[![license](https://img.shields.io/npm/l/redux-lite.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/@oldbig/redux-lite.svg)](https://www.npmjs.com/package/@oldbig/redux-lite)
+[![license](https://img.shields.io/npm/l/@oldbig/redux-lite.svg)](LICENSE)
 
 **一个为 React 量身打造的、零依赖、类型安全、轻量级的状态管理库。**
 
@@ -19,11 +19,11 @@
 ## 安装
 
 ```bash
-npm install redux-lite
+npm install @oldbig/redux-lite
 # or
-yarn add redux-lite
+yarn add @oldbig/redux-lite
 # or
-pnpm add redux-lite
+pnpm add @oldbig/redux-lite
 ```
 
 ## 快速上手
@@ -34,7 +34,7 @@ pnpm add redux-lite
 
 ```typescript
 // store.ts
-import { initiate, optional } from 'redux-lite';
+import { initiate, optional } from '@oldbig/redux-lite';
 
 export const INIT_STORE = {
   user: {

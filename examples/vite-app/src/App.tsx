@@ -1,4 +1,4 @@
-import { initiate, optional } from 'redux-lite';
+import { initiate, optional } from '@oldbig/redux-lite';
 
 // 1. Define the initial store structure
 const INIT_STORE = {
