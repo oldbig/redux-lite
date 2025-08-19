@@ -1,0 +1,48 @@
+{
+  "name": "redux-lite",
+  "version": "1.0.1",
+  "description": "A lightweight, zero-dependency, type-safe state management library for React.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.tsx --format cjs,esm --dts",
+    "dev": "tsup src/index.tsx --format cjs,esm --dts --watch",
+    "test": "vitest run",
+    "bench": "vitest bench"
+  },
+  "keywords": [
+    "react",
+    "state-management",
+    "redux",
+    "typescript",
+    "hooks",
+    "lightweight"
+  ],
+  "author": "Your Name <your-email@example.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/your-username/redux-lite#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/redux-lite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/redux-lite/issues"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^14.0.0",
+    "@types/react": "^18.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^26.1.0",
+    "react": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
