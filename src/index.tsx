@@ -1,8 +1,8 @@
-import { OPTIONAL_SYMBOL, OptionalValue, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride } from './types';
+import { OPTIONAL_SYMBOL, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride } from './types';
 import { isEqual, mergeState, optional } from './utils';
 import React, { createContext, useContext, useReducer, useMemo, useRef } from 'react';
 
-export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
+function initiate<T extends Record<string, any>>(INIT_STORE: T) {
   // 1. Create the initial state by unwrapping optional values
   const initialState = Object.keys(INIT_STORE).reduce((acc, key) => {
     const value = INIT_STORE[key];
@@ -113,3 +113,6 @@ export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
     useReduxLiteStore,
   };
 }
+
+
+export { optional, initiate };
