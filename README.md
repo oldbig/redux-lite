@@ -4,7 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@oldbig/redux-lite.svg)](https://www.npmjs.com/package/@oldbig/redux-lite)
 [![license](https://img.shields.io/npm/l/@oldbig/redux-lite.svg)](LICENSE)
-[![coverage badge](assets/coverage.svg)](./coverage/index.html)
+![coverage badge](assets/coverage.svg)
 
 **A lightweight, zero-dependency, type-safe state management library for React.**
 

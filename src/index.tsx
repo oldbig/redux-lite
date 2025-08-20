@@ -1,6 +1,6 @@
 import { OPTIONAL_SYMBOL, OptionalValue, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride } from './types';
 import { isEqual, mergeState, optional } from './utils';
-import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useRef } from 'react';
 
 export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
   // 1. Create the initial state by unwrapping optional values
@@ -80,11 +80,12 @@ export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
     if (!context) {
       throw new Error('useReduxLiteStore must be used within a ReduxLiteProvider.');
     }
-
-    const { state, dispatch } = context;
+    const contextHolder = useRef(context);
+    contextHolder.current = context;
 
     // Memoize dispatchers to prevent re-creation on every render
     const dispatchers = useMemo(() => {
+      const {state, dispatch} = contextHolder.current;
       const dispatcherAcc = Object.keys(state).reduce((acc, key) => {
         const capitalizedKey = (key.charAt(0).toUpperCase() + key.slice(1)) as CapitalizeString<typeof key>;
 
@@ -102,9 +103,9 @@ export function initiate<T extends Record<string, any>>(INIT_STORE: T) {
       }, {} as { [key: string]: any }); // Use a flexible type for the accumulator
 
       return dispatcherAcc as Dispatchers<StateFromInit<T>>; // Assert the final type
-    }, [dispatch, state]);
+    }, []);
 
-    return { ...state, ...dispatchers };
+    return { ...context.state, ...dispatchers };
   };
 
   return {

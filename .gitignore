@@ -31,3 +31,5 @@ Thumbs.db
 # Kilo Code specific
 .kilocode/
 
+# unit test coverage
+coverage/
