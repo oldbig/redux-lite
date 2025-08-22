@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    __REDUX_DEVTOOLS_EXTENSION__?: any;
+  }
+}
+
 /**
  * A unique symbol to identify optional values at runtime.
  * We re-export it here to make it accessible to other type definitions.
@@ -78,10 +85,28 @@ export type Dispatchers<T> = {
  * It combines the state slices with their corresponding dispatchers.
  */
 export type ReduxLiteStore<T> = T & Dispatchers<T>;
+
 /**
- * A utility type to make all properties of an object, including nested objects, optional.
- * This is useful for the `initStore` prop of the provider, allowing partial overrides.
+ * Configuration options for Redux DevTools integration.
  */
+export type DevToolsOptions = {
+  /**
+   * The name of the store instance to display in the DevTools.
+   */
+  name?: string;
+};
+
+/**
+ * Options for the `initiate` function.
+ */
+export type InitiateOptions = {
+  /**
+   * Configuration for Redux DevTools.
+   * Can be a boolean to enable/disable or an object for more specific options.
+   */
+  devTools?: boolean | DevToolsOptions;
+};
+
 /**
  * A type for the `initStore` prop of the provider. It allows each state slice
  * to be optional, and for object-based slices, their properties are also optional.

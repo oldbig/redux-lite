@@ -14,7 +14,9 @@ const INIT_STORE = {
 };
 
 // 2. Create the Provider and Hook
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, { 
+  devTools: { name: 'Vite App Example' } 
+});
 
 // 3. Create components that use the hook
 const UserDisplay = () => {

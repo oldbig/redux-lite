@@ -1,8 +1,8 @@
-import { OPTIONAL_SYMBOL, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride } from './types';
+import { OPTIONAL_SYMBOL, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride, InitiateOptions } from './types';
 import { isEqual, mergeState, optional } from './utils';
-import React, { createContext, useContext, useReducer, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useRef, useEffect } from 'react';
 
-function initiate<T extends Record<string, any>>(INIT_STORE: T) {
+function initiate<T extends Record<string, any>>(INIT_STORE: T, options?: InitiateOptions) {
   // 1. Create the initial state by unwrapping optional values
   const initialState = Object.keys(INIT_STORE).reduce((acc, key) => {
     const value = INIT_STORE[key];
@@ -65,10 +65,49 @@ function initiate<T extends Record<string, any>>(INIT_STORE: T) {
       return initialState;
     }, [propInitStore]);
 
+    const devToolsRef = useRef<any>(null);
+    const lastActionRef = useRef<Action<StateFromInit<T>> | null>(null);
+
     const [state, dispatch] = useReducer(reducer, finalInitialState);
 
+    const enhancedDispatch = useMemo(() => {
+      if (options?.devTools) {
+        return (action: Action<StateFromInit<T>>) => {
+          lastActionRef.current = action;
+          dispatch(action);
+        };
+      }
+      return dispatch;
+    }, [dispatch]);
+
+    useEffect(() => {
+      if (devToolsRef.current && lastActionRef.current) {
+        devToolsRef.current.send(lastActionRef.current, state);
+      }
+    }, [state]);
+
+    useEffect(() => {
+      if (!options?.devTools) {
+        return;
+      }
+
+      const devTools = window.__REDUX_DEVTOOLS_EXTENSION__?.connect(
+        typeof options.devTools === 'object' ? options.devTools : {}
+      );
+
+      if (devTools) {
+        devToolsRef.current = devTools;
+        devTools.init(finalInitialState);
+
+        return () => {
+          // The unreliable disconnect call is removed.
+          devToolsRef.current = null;
+        };
+      }
+    }, [finalInitialState]);
+
     return (
-      <StoreContext.Provider value={{ state, dispatch }}>
+      <StoreContext.Provider value={{ state, dispatch: enhancedDispatch }}>
         {children}
       </StoreContext.Provider>
     );
@@ -80,13 +119,11 @@ function initiate<T extends Record<string, any>>(INIT_STORE: T) {
     if (!context) {
       throw new Error('useReduxLiteStore must be used within a ReduxLiteProvider.');
     }
-    const contextHolder = useRef(context);
-    contextHolder.current = context;
 
     // Memoize dispatchers to prevent re-creation on every render
     const dispatchers = useMemo(() => {
-      const {state, dispatch} = contextHolder.current;
-      const dispatcherAcc = Object.keys(state).reduce((acc, key) => {
+      const { dispatch } = context;
+      const dispatcherAcc = Object.keys(initialState).reduce((acc, key) => {
         const capitalizedKey = (key.charAt(0).toUpperCase() + key.slice(1)) as CapitalizeString<typeof key>;
 
         // Create dispatchUser
@@ -103,7 +140,7 @@ function initiate<T extends Record<string, any>>(INIT_STORE: T) {
       }, {} as { [key: string]: any }); // Use a flexible type for the accumulator
 
       return dispatcherAcc as Dispatchers<StateFromInit<T>>; // Assert the final type
-    }, []);
+    }, [context.dispatch]);
 
     return { ...context.state, ...dispatchers };
   };

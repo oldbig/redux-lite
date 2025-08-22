@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
-import { describe, it, expect } from 'vitest';
-import { render, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { render } from '@testing-library/react';
 import { initiate } from './index';
-import React from 'react';
+import React, {act  } from 'react';
 import { optional } from './utils';
 
 const INIT_STORE = {
@@ -250,6 +250,69 @@ describe('redux-lite core functionality', () => {
       );
       expect(getByText('User: Mocked User')).not.toBeNull();
     });
+  });
+});
+
+describe('DevTools Integration', () => {
+  const mockDevTools = {
+    connect: vi.fn(),
+    init: vi.fn(),
+    send: vi.fn(),
+    disconnect: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockDevTools.connect.mockReturnValue(mockDevTools);
+    window.__REDUX_DEVTOOLS_EXTENSION__ = mockDevTools;
+  });
+
+  afterEach(() => {
+    delete window.__REDUX_DEVTOOLS_EXTENSION__;
+  });
+
+  it('should connect to DevTools and initialize state when enabled', () => {
+    const { ReduxLiteProvider } = initiate(INIT_STORE, { devTools: true });
+    render(<ReduxLiteProvider><div /></ReduxLiteProvider>);
+
+    expect(mockDevTools.connect).toHaveBeenCalledTimes(1);
+    expect(mockDevTools.init).toHaveBeenCalledTimes(1);
+  });
+
+  it('should send updates to DevTools when state changes', () => {
+    const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE, { devTools: true });
+    const TestComponent = () => {
+      const { dispatchCount } = useReduxLiteStore();
+      return <button onClick={() => dispatchCount(c => c + 1)}>Increment</button>;
+    };
+
+    const { getByText } = render(<ReduxLiteProvider><TestComponent /></ReduxLiteProvider>);
+
+    act(() => {
+      getByText('Increment').click();
+    });
+
+    expect(mockDevTools.send).toHaveBeenCalledTimes(1);
+    const [action, state] = mockDevTools.send.mock.calls[0];
+    expect(action.type).toBe('count');
+    expect(state.count).toBe(7);
+  });
+
+  it('should not interact with DevTools when disabled', () => {
+    const { ReduxLiteProvider } = initiate(INIT_STORE); // devTools option is off
+    render(<ReduxLiteProvider><div /></ReduxLiteProvider>);
+
+    expect(mockDevTools.connect).not.toHaveBeenCalled();
+    expect(mockDevTools.init).not.toHaveBeenCalled();
+    expect(mockDevTools.send).not.toHaveBeenCalled();
+  });
+
+  it('should pass options to DevTools connect function', () => {
+    const devToolsOptions = { name: 'My Test App' };
+    const { ReduxLiteProvider } = initiate(INIT_STORE, { devTools: devToolsOptions });
+    render(<ReduxLiteProvider><div /></ReduxLiteProvider>);
+
+    expect(mockDevTools.connect).toHaveBeenCalledWith(devToolsOptions);
   });
 });
 describe('reducer branch coverage', () => {
