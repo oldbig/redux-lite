@@ -17,6 +17,7 @@
 - **✨ 简洁直观的 API**：极简的 API，易于学习和使用。
 - **🔒 完全类型安全**：从 store 定义到 dispatchers，提供端到端的类型安全和卓越的自动补全体验。
 - **✅ 难以置信的简单测试**：灵活的 Provider 让模拟单元测试的 state 变得轻而易举。
+- **🐞 DevTools 就绪**：可选的、零成本的 Redux DevTools 集成，提供顶级的调试体验。
 
 ## 安装
 
@@ -217,6 +218,42 @@ it('应该浅合并 user 切片并替换嵌套对象', () => {
 你可以轻松地在不同状态下测试你的组件，而无需任何复杂的设置或模拟。
 
 </details>
+
+<details>
+<summary>DevTools 集成</summary>
+
+`redux-lite` 提供了与 [Redux DevTools 浏览器插件](https://github.com/reduxjs/redux-devtools) 的可选集成，为您提供顶级的调试体验，包括 action 追踪和时间旅行调试。
+
+该功能默认禁用，在不使用时**性能开销为零**。
+
+**如何启用**
+
+要启用此功能，只需在 `initiate` 函数中传入 `devTools` 选项。
+
+```typescript
+// 使用默认配置启用
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+  devTools: true
+});
+
+// 或为您的 store 实例提供一个名称
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+  devTools: { name: 'MyAppStore' }
+});
+```
+
+**安装步骤**
+
+1.  为您的浏览器安装 Redux DevTools 插件：
+    *   [Chrome 应用商店](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd)
+    *   [Firefox 附加组件](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
+2.  如上所示，在您的代码中启用该功能。
+3.  打开浏览器的开发者工具，找到 "Redux" 标签页。
+
+![Redux DevTools 截图](./assets/reux-devTools.png)
+
+</details>
+
 
 ## 支持本项目
 

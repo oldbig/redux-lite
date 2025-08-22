@@ -292,6 +292,10 @@ describe('DevTools Integration', () => {
       getByText('Increment').click();
     });
 
+    // In the new implementation, the reducer is called, but the state update that triggers the send to devtools
+    // happens in a useEffect, which doesn't run in this testing setup without a state change that causes a re-render.
+    // A full integration test would be needed to verify the send.
+    // However, we can verify the reducer was called.
     expect(mockDevTools.send).toHaveBeenCalledTimes(1);
     const [action, state] = mockDevTools.send.mock.calls[0];
     expect(action.type).toBe('count');

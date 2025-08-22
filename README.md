@@ -17,6 +17,7 @@
 - **✨ Simple & Intuitive API**: A minimal API that is easy to learn and use.
 - **🔒 Fully Type-Safe**: End-to-end type safety, from store definition to dispatchers, with excellent autocompletion.
 - **✅ Unbelievably Easy Testing**: A flexible provider makes mocking state for unit tests trivial.
+- **🐞 DevTools Ready**: Optional, zero-cost integration with Redux DevTools for a great debugging experience.
 
 ## Installation
 
@@ -215,6 +216,41 @@ it('should shallow merge user slice and replace nested objects', () => {
 ```
 
 You can easily test your components in different states without any complex setup or mocking.
+
+</details>
+
+<details>
+<summary>DevTools Integration</summary>
+
+`redux-lite` offers optional integration with the [Redux DevTools Extension](https://github.com/reduxjs/redux-devtools) for a first-class debugging experience, including action tracking and time-travel debugging.
+
+This feature is disabled by default and has **zero performance cost** when not in use.
+
+**How to Enable**
+
+To enable the integration, pass the `devTools` option to the `initiate` function.
+
+```typescript
+// Enable with default options
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+  devTools: true
+});
+
+// Or provide a name for your store instance
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+  devTools: { name: 'MyAppStore' }
+});
+```
+
+**Installation**
+
+1.  Install the Redux DevTools Extension for your browser:
+    *   [Chrome Web Store](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd)
+    *   [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
+2.  Enable the feature in your code as shown above.
+3.  Open your browser's developer tools and find the "Redux" tab.
+
+![Redux DevTools Screenshot](./assets/reux-devTools.png)
 
 </details>
 
