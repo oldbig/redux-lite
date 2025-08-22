@@ -250,7 +250,7 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
 2.  如上所示，在您的代码中启用该功能。
 3.  打开浏览器的开发者工具，找到 "Redux" 标签页。
 
-![Redux DevTools 截图](./assets/reux-devTools.png)
+![Redux DevTools 截图](./assets/redux-devTools.png)
 
 </details>
 

@@ -250,7 +250,7 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
 2.  Enable the feature in your code as shown above.
 3.  Open your browser's developer tools and find the "Redux" tab.
 
-![Redux DevTools Screenshot](./assets/reux-devTools.png)
+![Redux DevTools Screenshot](./assets/redux-devTools.png)
 
 </details>
 
