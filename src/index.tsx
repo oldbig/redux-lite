@@ -1,4 +1,4 @@
-import { OPTIONAL_SYMBOL, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride, InitiateOptions } from './types';
+import { OPTIONAL_SYMBOL, StateFromInit, Action, Dispatchers, CapitalizeString, ReduxLiteStore, StateOverride, InitiateOptions, DevToolsOptions } from './types';
 import { isEqual, mergeState, optional } from './utils';
 import React, { createContext, useContext, useReducer, useMemo, useRef, useEffect, useCallback, act } from 'react';
 
@@ -11,8 +11,8 @@ function initiate<T extends Record<string, any>>(INIT_STORE: T, options?: Initia
     const newSlice = typeof payload === 'function' ? payload(oldSlice, state) : payload;
 
     if (isPartial) {
-      // Partial updates are only possible for objects.
-      if (typeof oldSlice === 'object' && oldSlice !== null && typeof newSlice === 'object' && newSlice !== null) {
+      // Partial updates are only possible for plain objects, not arrays.
+      if (typeof oldSlice === 'object' && oldSlice !== null && !Array.isArray(oldSlice) && typeof newSlice === 'object' && newSlice !== null) {
         const mergedSlice = { ...oldSlice, ...newSlice };
         if (isEqual(oldSlice, mergedSlice)) {
           return state; // No actual change, return original state
@@ -22,8 +22,7 @@ function initiate<T extends Record<string, any>>(INIT_STORE: T, options?: Initia
           [type]: mergedSlice,
         };
       }
-      // If not an object, fall back to a full update for this slice.
-      // Covered by reducer should fall back to full update if isPartial and newSlice is not an object test
+      // If not a plain object, fall back to a full update for this slice.
     }
 
     if (isEqual(oldSlice, newSlice)) {
