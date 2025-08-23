@@ -124,11 +124,11 @@ const MyComponent = () => {
 The sole entry point for the library.
 
 - **`storeDefinition`**: An object that defines the shape and initial values of your store.
-- **Returns**: An object containing `{ ReduxLiteProvider, useReduxLiteStore }`.
-
-### `useReduxLiteStore()`
-
-The hook returns a flattened object containing all state slices and dispatchers.
+- **Returns**: An object containing `{ ReduxLiteProvider, useReduxLiteStore, useSelector }`.
+ 
+ ### `useReduxLiteStore()`
+ 
+ The hook returns a flattened object containing all state slices and dispatchers.
 
 **Dispatchers**
 
@@ -143,6 +143,37 @@ The `payload` can be a value or a function. If it's a function, it receives the 
 A helper function to mark a state slice as optional. The state property will be typed as `T | undefined`.
 
 - **`initialValue`** (optional): The initial value of the property. If not provided, the state will be `undefined`.
+
+### `useSelector(selector, equalityFn?)`
+
+A hook for selecting and subscribing to a part of the state, with performance optimizations. It is similar to the `useSelector` hook in `react-redux`.
+
+- **`selector`**: `(store: TStore) => TSelected` - A function that takes the entire store state and returns the selected value.
+- **`equalityFn`** (optional): `(a: TSelected, b: TSelected) => boolean` - A function to compare the selected value. Defaults to `isEqual` (a deep equality check). The component will only re-render if this function returns `false`. In most cases, you don't need to provide this parameter. It's only necessary if the value returned by the `selector` contains function fields.
+
+**When to use `useSelector`?**
+
+While `useReduxLiteStore` is convenient for accessing both state and dispatchers, `useSelector` is highly recommended for performance-critical components that only need to read a small piece of state. It helps prevent unnecessary re-renders when other parts of the store change.
+
+**Example:**
+
+```tsx
+import { useSelector } from './store';
+
+const UserName = () => {
+ // This component will only re-render when `user.name` changes.
+ const userName = useSelector(store => store.user.name);
+ 
+ return <div>{userName}</div>
+}
+
+const UserAge = () => {
+   // This component will only re-render when `user.age` changes.
+   const userAge = useSelector(store => store.user.age);
+   
+   return <div>{userAge}</div>
+}
+```
 
 ## Performance
 

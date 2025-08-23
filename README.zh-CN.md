@@ -124,11 +124,11 @@ const MyComponent = () => {
 本库唯一的入口点。
 
 - **`storeDefinition`**: 一个定义了您 store 结构和初始值的对象。
-- **返回**: 一个包含 `{ ReduxLiteProvider, useReduxLiteStore }` 的对象。
-
-### `useReduxLiteStore()`
-
-该 hook 返回一个扁平化的对象，其中包含所有 state 切片和 dispatchers。
+- **返回**: 一个包含 `{ ReduxLiteProvider, useReduxLiteStore, useSelector }` 的对象。
+ 
+ ### `useReduxLiteStore()`
+ 
+ 该 hook 返回一个扁平化的对象，其中包含所有 state 切片和 dispatchers。
 
 **Dispatchers**
 
@@ -143,6 +143,37 @@ const MyComponent = () => {
 一个辅助函数，用于将 state 的某个切片标记为可选的。该 state 属性的类型将被推导为 `T | undefined`。
 
 - **`initialValue`** (可选): 该属性的初始值。如果未提供，则 state 的初始值为 `undefined`。
+
+### `useSelector(selector, equalityFn?)`
+
+一个用于选择和订阅 state 一部分的钩子，具有性能优化。它类似于 `react-redux` 中的 `useSelector` 钩子。
+
+- **`selector`**: `(store: TStore) => TSelected` - 一个函数，它接收整个 store 的 state 并返回所选的值。
+- **`equalityFn`** (可选): `(a: TSelected, b: TSelected) => boolean` - 一个用于比较所选值的函数。默认为 `isEqual`（一个深度相等检查）。只有当此函数返回 `false` 时，组件才会重新渲染。在大多数情况下，您不需要提供此参数。仅当 `selector` 返回的值中包含函数类型的字段时，才需要提供此函数。
+
+**何时使用 `useSelector`？**
+
+虽然 `useReduxLiteStore` 对于访问 state 和 dispatchers 很方便，但对于只需要读取一小部分 state 的性能关键组件，强烈建议使用 `useSelector`。当 store 的其他部分发生变化时，它可以帮助防止不必要的重新渲染。
+
+**示例：**
+
+```tsx
+import { useSelector } from './store';
+
+const UserName = () => {
+ // 这个组件只会在 `user.name` 改变时重新渲染。
+ const userName = useSelector(store => store.user.name);
+ 
+ return <div>{userName}</div>
+}
+
+const UserAge = () => {
+   // 这个组件只会在 `user.age` 改变时重新渲染。
+   const userAge = useSelector(store => store.user.age);
+   
+   return <div>{userAge}</div>
+}
+```
 
 ## 性能
 
