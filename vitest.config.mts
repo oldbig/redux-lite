@@ -6,11 +6,22 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      'examples/**'
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'json-summary', 'lcov'],
       reportOnFailure: true,
-      exclude: ['examples/**', 'vitest.config.mts', 'vitest-setup.ts'],
+      exclude: [
+        'examples/**',
+        'vitest.config.mts',
+        'vitest-setup.ts'
+      ],
       thresholds: {
         statements: 100,
         branches: 100,

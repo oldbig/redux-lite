@@ -3,6 +3,7 @@ import { optional } from './utils';
 import { createInitialState } from './initialState';
 import { StoreContextProvider } from './provider';
 import { useReduxLiteStore } from './hook';
+import { createUseSelector } from './useSelector';
 
 /**
  * Initiates the ReduxLite store by taking the initial store definition
@@ -14,6 +15,9 @@ import { useReduxLiteStore } from './hook';
 function initiate<T extends Record<string, any>>(storeDefinition: T, options?: InitiateOptions) {
   // Create the initial state by unwrapping optional values
   const initialState = createInitialState(storeDefinition);
+
+  // Create a typed useSelector hook
+  const useSelector = createUseSelector<T>();
 
   // StoreContextProvider component that holds the state and provides it to the React tree.
   const ReduxLiteProvider = (props: React.PropsWithChildren<{ initStore?: StateOverride<StateFromInit<T>> }>) => (
@@ -27,6 +31,7 @@ function initiate<T extends Record<string, any>>(storeDefinition: T, options?: I
   return {
     ReduxLiteProvider,
     useReduxLiteStore: useReduxLiteStore<T>,
+    useSelector,
   };
 }
 
