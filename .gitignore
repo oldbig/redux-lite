@@ -1,5 +1,5 @@
 # Dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.js
 
@@ -36,3 +36,4 @@ coverage/
 
 # e2e test report
 playwright-report/
+

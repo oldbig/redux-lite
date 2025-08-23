@@ -148,7 +148,12 @@ A helper function to mark a state slice as optional. The state property will be 
 
 `redux-lite` is designed for high performance. The internal reducer uses smart value comparison to prevent state updates and re-renders when data has not changed.
 
-In a benchmark test that simulates a real-world scenario by calling a dispatch function repeatedly, `redux-lite` was able to perform **10,000 state updates in approximately 35 milliseconds**. This demonstrates its exceptional speed even when including React's rendering lifecycle.
+In a benchmark test that simulates a real-world scenario by calling a dispatch function repeatedly, `redux-lite` was able to perform:
+- **1,000 Counter Updates in approximately 15.2 milliseconds**
+- **1,000 Array Updates in approximately 2.7 milliseconds**
+- **10,000 Object Updates in approximately 45.3 milliseconds**
+
+This demonstrates its exceptional speed even when including React's rendering lifecycle.
 
 ## Comparison with Redux
 
