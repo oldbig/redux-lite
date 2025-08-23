@@ -33,13 +33,13 @@ pnpm add @oldbig/redux-lite
 
 ### 1. Define your initial store
 
-Create an `INIT_STORE` object. This single object is the source of truth for your entire state structure and types.
+Create a `storeDefinition` object. This single object is the source of truth for your entire state structure and types.
 
 ```typescript
 // store.ts
 import { initiate, optional } from '@oldbig/redux-lite';
 
-export const INIT_STORE = {
+export const STORE_DEFINITION = {
   user: {
     name: 'Jhon' as string | null,
     age: 30,
@@ -52,7 +52,7 @@ export const INIT_STORE = {
   counter: 0,
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+export const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
 ```
 
 ### 2. Wrap your app with the `Provider`
@@ -119,11 +119,11 @@ const MyComponent = () => {
 
 ## API
 
-### `initiate(INIT_STORE)`
+### `initiate(storeDefinition)`
 
 The sole entry point for the library.
 
-- **`INIT_STORE`**: An object that defines the shape and initial values of your store.
+- **`storeDefinition`**: An object that defines the shape and initial values of your store.
 - **Returns**: An object containing `{ ReduxLiteProvider, useReduxLiteStore }`.
 
 ### `useReduxLiteStore()`
@@ -178,12 +178,12 @@ import { initiate } from '@oldbig/redux-lite';
 import React from 'react';
 
 // Assume this is your initial store configuration
-const INIT_STORE = {
+const STORE_DEFINITION = {
   user: { name: 'Guest', age: 0, profile: { theme: 'dark' } },
   isAuthenticated: false,
 };
 
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
 
 // --- Your Component ---
 const UserProfile: React.FC = () => {
@@ -232,12 +232,12 @@ To enable the integration, pass the `devTools` option to the `initiate` function
 
 ```typescript
 // Enable with default options
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: true
 });
 
 // Or provide a name for your store instance
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: { name: 'MyAppStore' }
 });
 ```

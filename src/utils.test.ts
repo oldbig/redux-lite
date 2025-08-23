@@ -109,14 +109,14 @@ describe('optional', () => {
 });
 
 describe('mergeState', () => {
-  const INIT_STORE_DEFINITION = {
+  const STORE_DEFINITION = {
     user: { name: 'Jhon', age: 30, data: { status: 'active' } },
     task: optional({ id: 1, title: 'Test Task' }),
     counter: 0,
     list: [1, 2, 3],
   };
 
-  type InitialStateUnwrapped = StateFromInit<typeof INIT_STORE_DEFINITION>;
+  type InitialStateUnwrapped = StateFromInit<typeof STORE_DEFINITION>;
 
   const INITIAL_STATE_UNWRAPPED: InitialStateUnwrapped = {
     user: { name: 'Jhon', age: 30, data: { status: 'active' } },

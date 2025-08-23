@@ -38,7 +38,7 @@ export type CapitalizeString<S extends string> = S extends `${infer First}${infe
   : S;
 
 /**
- * Transforms the initial store definition into the actual state type.
+ * Transforms the store definition into the actual state type.
  * It unwraps OptionalValue and handles optional properties.
  */
 export type StateFromInit<T> = {

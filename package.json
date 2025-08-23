@@ -1,6 +1,6 @@
 {
   "name": "@oldbig/redux-lite",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A lightweight, zero-dependency, type-safe state management library for React.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

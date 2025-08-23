@@ -33,13 +33,13 @@ pnpm add @oldbig/redux-lite
 
 ### 1. 定义你的初始 store
 
-创建一个 `INIT_STORE` 对象。这个唯一的对象是您整个 state 结构和类型的“真理之源”。
+创建一个 `storeDefinition` 对象。这个唯一的对象是您整个 state 结构和类型的“真理之源”。
 
 ```typescript
 // store.ts
 import { initiate, optional } from '@oldbig/redux-lite';
 
-export const INIT_STORE = {
+export const STORE_DEFINITION = {
   user: {
     name: 'Jhon' as string | null,
     age: 30,
@@ -52,7 +52,7 @@ export const INIT_STORE = {
   counter: 0,
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+export const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
 ```
 
 ### 2. 使用 `Provider` 包装你的应用
@@ -119,11 +119,11 @@ const MyComponent = () => {
 
 ## API
 
-### `initiate(INIT_STORE)`
+### `initiate(storeDefinition)`
 
 本库唯一的入口点。
 
-- **`INIT_STORE`**: 一个定义了您 store 结构和初始值的对象。
+- **`storeDefinition`**: 一个定义了您 store 结构和初始值的对象。
 - **返回**: 一个包含 `{ ReduxLiteProvider, useReduxLiteStore }` 的对象。
 
 ### `useReduxLiteStore()`
@@ -178,12 +178,12 @@ import { initiate } from '@oldbig/redux-lite';
 import React from 'react';
 
 // 假设这是你的初始 store 配置
-const INIT_STORE = {
+const STORE_DEFINITION = {
   user: { name: 'Guest', age: 0, profile: { theme: 'dark' } },
   isAuthenticated: false,
 };
 
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE);
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
 
 // --- 你的组件 ---
 const UserProfile: React.FC = () => {
@@ -232,12 +232,12 @@ it('应该浅合并 user 切片并替换嵌套对象', () => {
 
 ```typescript
 // 使用默认配置启用
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: true
 });
 
 // 或为您的 store 实例提供一个名称
-const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_STORE, {
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: { name: 'MyAppStore' }
 });
 ```

@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { initiate } from './index';
-import React, {act  } from 'react';
+import React, { act } from 'react';
 import { optional } from './utils';
 
 const INIT_STORE = {

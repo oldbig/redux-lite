@@ -1,7 +1,7 @@
 import { OptionalValue, OPTIONAL_SYMBOL, StateFromInit, StateOverride } from './types';
 
 /**
- * Marks a value in the initial store as optional.
+ * Marks a value in the store definition as optional.
  * This allows the property to be undefined in the state.
  *
  * @param initialValue The initial value of the property (optional).
