@@ -59,7 +59,7 @@ describe('useSelector', () => {
     let renderCount = 0;
 
     // Custom equality function that only compares user name
-    const nameEquality = (a: any, b: any) => a.name === b.name;
+    const nameEquality = (a: { name: string; sayHi: () => string; }, b: { name: string; sayHi: () => string; }) => a.name === b.name;
 
     const DataComponent = memo(({user}:{user: {name: string, sayHi():string}})=>{
       renderCount++;
@@ -69,7 +69,7 @@ describe('useSelector', () => {
         </>
     });
     const UserComponent = () => {
-      const selectedUser = useSelector(({ user: { name } }) => ({ name, sayHi(){return `Hi ${this.name}`} }), nameEquality);
+      const selectedUser = useSelector(({ user: { name } }) => ({ name, sayHi: () => `Hi ${name}` }), nameEquality);
       return <DataComponent user={selectedUser}/>;
     };
 
@@ -78,7 +78,7 @@ describe('useSelector', () => {
       return (
         <div>
           <button 
-            onClick={() => store.dispatchUser((u: any) => ({ ...u, age: u.age + 1 }))
+            onClick={() => store.dispatchUser((u) => ({ ...u, age: u.age + 1 }))
           }>
             Increment Age
           </button>

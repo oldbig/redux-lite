@@ -115,3 +115,15 @@ export type InitiateOptions = {
 export type StateOverride<T> = {
   [K in keyof T]?: T[K] extends object ? Partial<T[K]> : T[K];
 };
+
+/**
+ * The return type of the `initiate` function.
+ */
+export type InitiateReturnType<T> = {
+  ReduxLiteProvider: React.ComponentType<React.PropsWithChildren<{ initStore?: StateOverride<StateFromInit<T>> }>>;
+  useReduxLiteStore: () => ReduxLiteStore<StateFromInit<T>>;
+  useSelector: <TSelected>(
+    selector: (state: StateFromInit<T>) => TSelected,
+    equalityFn?: (left: TSelected, right: TSelected) => boolean
+  ) => TSelected;
+};

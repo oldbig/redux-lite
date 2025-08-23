@@ -111,3 +111,39 @@ test('should show correct item count', async ({ page }) => {
   // Now there should be 1 item left
   await expect(page.locator('.todo-count')).toHaveText('1 items left');
 });
+
+test('should display correct active and completed counts using useSelector', async ({ page }) => {
+  // Initially, there should be 0 active and 0 completed
+  await expect(page.locator('.todo-stats')).toContainText('Active: 0');
+  await expect(page.locator('.todo-stats')).toContainText('Completed: 0');
+  
+  // Add a todo
+  await page.locator('.todo-input').fill('New todo');
+  await page.locator('.todo-add-btn').click();
+  
+  // Now there should be 1 active and 0 completed
+  await expect(page.locator('.todo-stats')).toContainText('Active: 1');
+  await expect(page.locator('.todo-stats')).toContainText('Completed: 0');
+  
+  // Add another todo
+  await page.locator('.todo-input').fill('Another todo');
+ await page.locator('.todo-add-btn').click();
+  
+  // Now there should be 2 active and 0 completed
+  await expect(page.locator('.todo-stats')).toContainText('Active: 2');
+  await expect(page.locator('.todo-stats')).toContainText('Completed: 0');
+  
+  // Toggle completion of the first todo
+  await page.locator('.todo-item').first().locator('.todo-text').click();
+  
+  // Now there should be 1 active and 1 completed
+  await expect(page.locator('.todo-stats')).toContainText('Active: 1');
+  await expect(page.locator('.todo-stats')).toContainText('Completed: 1');
+  
+  // Delete the completed todo
+  await page.locator('.todo-item.completed').locator('.todo-delete-btn').click();
+  
+  // Now there should be 1 active and 0 completed
+  await expect(page.locator('.todo-stats')).toContainText('Active: 1');
+  await expect(page.locator('.todo-stats')).toContainText('Completed: 0');
+});

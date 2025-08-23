@@ -1,4 +1,4 @@
-import { StateFromInit, InitiateOptions, StateOverride } from './types';
+import { StateFromInit, InitiateOptions, StateOverride, InitiateReturnType } from './types';
 import { optional } from './utils';
 import { createInitialState } from './initialState';
 import { StoreContextProvider } from './provider';
@@ -10,9 +10,9 @@ import { createUseSelector } from './useSelector';
  * and returning the Provider component and the useReduxLiteStore hook.
  * @param storeDefinition The initial store definition object.
  * @param options Optional configuration for the store, including DevTools.
- * @returns An object containing the ReduxLiteProvider and useReduxLiteStore hook.
+ * @returns An object containing the ReduxLiteProvider, useReduxLiteStore hook, and useSelector hook.
  */
-function initiate<T extends Record<string, any>>(storeDefinition: T, options?: InitiateOptions) {
+function initiate<T extends Record<string, any>>(storeDefinition: T, options?: InitiateOptions): InitiateReturnType<T> {
   // Create the initial state by unwrapping optional values
   const initialState = createInitialState(storeDefinition);
 

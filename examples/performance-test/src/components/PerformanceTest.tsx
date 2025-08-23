@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { useReduxLiteStore } from '../store';
+import React, { useState, useCallback } from 'react';
+import { useReduxLiteStore, useSelector } from '../store';
+import { INIT_PERFORMANCE_STORE } from '../store';
+
 
 const PerformanceTest: React.FC = () => {
   const { counter, items, profile, dispatchCounter, dispatchItems, dispatchProfile } = useReduxLiteStore();
@@ -66,6 +68,25 @@ const PerformanceTest: React.FC = () => {
       { name: `Object Update (${iterations} iterations)`, time: totalTime }
     ]);
   }, [dispatchProfile]);
+
+  // Test 4: useSelector performance
+  const testSelectorPerformance = useCallback(() => {
+    const iterations = 10000;
+    const startTime = performance.now();
+
+    for (let i = 0; i < iterations; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const counter = useSelector((state: typeof INIT_PERFORMANCE_STORE) => state.counter);
+    }
+
+    const endTime = performance.now();
+    const totalTime = endTime - startTime;
+
+    setTestResults(prev => [
+      ...prev,
+      { name: `useSelector (${iterations} iterations)`, time: totalTime }
+    ]);
+  }, []);
   
   // Run all tests
   const runAllTests = useCallback(() => {
@@ -79,11 +100,14 @@ const PerformanceTest: React.FC = () => {
         testArrayPerformance();
         setTimeout(() => {
           testObjectPerformance();
-          setIsRunning(false);
+          setTimeout(() => {
+            testSelectorPerformance();
+            setIsRunning(false);
+          }, 100);
         }, 100);
       }, 100);
     }, 100);
-  }, [testCounterPerformance, testArrayPerformance, testObjectPerformance]);
+  }, [testCounterPerformance, testArrayPerformance, testObjectPerformance, testSelectorPerformance]);
   
   return (
     <div className="performance-test">

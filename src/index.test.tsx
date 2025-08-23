@@ -103,7 +103,7 @@ describe('redux-lite core functionality', () => {
       const store = useReduxLiteStore();
       return (
         <div>
-          <button onClick={() => store.dispatchCount(c => c + 5)}>Update Functional</button>
+          <button onClick={() => store.dispatchCount((c: number) => c + 5)}>Update Functional</button>
           <div>Count: {store.count}</div>
         </div>
       );
@@ -174,7 +174,7 @@ describe('redux-lite core functionality', () => {
       return (
         <div>
           <button onClick={() => store.dispatchCount(10)}>Set Counter</button>
-          <button onClick={() => store.dispatchPartialUser((user, fullStore) => ({ age: user.age + fullStore.count + (fullStore.task?.id ?? 0) }))}>Update With Store</button>
+          <button onClick={() => store.dispatchPartialUser((user: { age: number }, fullStore: { count: number; task?: { id: number } }) => ({ age: user.age + fullStore.count + (fullStore.task?.id ?? 0) }))}>Update With Store</button>
           <div>User Age: {store.user.age}</div>
         </div>
       );
@@ -322,7 +322,7 @@ describe('DevTools Integration', () => {
     const { useReduxLiteStore, ReduxLiteProvider } = initiate(INIT_STORE, { devTools: true });
     const TestComponent = () => {
       const { dispatchCount } = useReduxLiteStore();
-      return <button onClick={() => dispatchCount(c => c + 1)}>Increment</button>;
+      return <button onClick={() => dispatchCount((c: number) => c + 1)}>Increment</button>;
     };
 
     const { getByText } = render(<ReduxLiteProvider><TestComponent /></ReduxLiteProvider>);

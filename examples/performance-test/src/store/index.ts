@@ -19,4 +19,4 @@ export const INIT_PERFORMANCE_STORE = {
   },
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(INIT_PERFORMANCE_STORE);
+export const { ReduxLiteProvider, useReduxLiteStore, useSelector } = initiate(INIT_PERFORMANCE_STORE);

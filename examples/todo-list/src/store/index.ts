@@ -11,5 +11,5 @@ import { INIT_TODO_STORE } from './todo';
  * You can also pass an object with a `name` property to identify the store instance
  * in the DevTools extension, like `{ devTools: { name: 'My Awesome App' } }`.
  */
-export const { ReduxLiteProvider, useReduxLiteStore } =
+export const { ReduxLiteProvider, useReduxLiteStore, useSelector } =
   initiate(INIT_TODO_STORE, { devTools: { name: 'Todo list state' } });
