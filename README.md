@@ -109,7 +109,7 @@ const MyComponent = () => {
       </button>
 
       {/* Functional update with access to the full store */}
-      <button onClick={() => dispatchPartialUser((prev, store) => ({ age: prev.age + store.counter }))}>
+      <button onClick={() => dispatchPartialUser((currentUser, store) => ({ age: currentUser.age + store.counter }))}>
         Increment Age by Counter
       </button>
     </div>

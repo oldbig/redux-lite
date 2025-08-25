@@ -1,4 +1,4 @@
-import { optional } from '../../../../src';
+import { optional } from '@oldbig/redux-lite';
 
 export type Todo = {
   id: number;

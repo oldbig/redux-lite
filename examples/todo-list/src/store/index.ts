@@ -1,4 +1,4 @@
-import { initiate } from '../../../../src';
+import { initiate } from '@oldbig/redux-lite';
 import { INIT_TODO_STORE } from './todo';
 
 /**

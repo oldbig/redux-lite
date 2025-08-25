@@ -109,7 +109,7 @@ const MyComponent = () => {
       </button>
 
       {/* 函数式更新，可访问整个 store */}
-      <button onClick={() => dispatchPartialUser((prev, store) => ({ age: prev.age + store.counter }))}>
+      <button onClick={() => dispatchPartialUser((currentUser, store) => ({ age: currentUser.age + store.counter }))}>
         根据计数器增加年龄
       </button>
     </div>
