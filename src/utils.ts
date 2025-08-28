@@ -39,11 +39,43 @@ export function isEqual(objA: any, objB: any, seen = new WeakSet()): boolean {
     const keysA = Object.keys(objA);
     const keysB = Object.keys(objB);
 
+    // Check if both objects have the same number of keys
     if (keysA.length !== keysB.length) return false;
 
+    // Check if both objects have the same keys
+    for (let i = 0; i < keysA.length; i++) {
+      if (!Object.prototype.hasOwnProperty.call(objB, keysA[i])) {
+        return false;
+      }
+    }
+
+    // For performance, first check with === for primitive values
+    // and collect complex values that need deep comparison
+    const keysToDeepCheck: string[] = [];
     for (let i = 0; i < keysA.length; i++) {
       const key = keysA[i];
-      if (!Object.prototype.hasOwnProperty.call(objB, key) || !isEqual(objA[key], objB[key], seen)) {
+      const valueA = objA[key];
+      const valueB = objB[key];
+      
+      // For primitive values or same reference, use ===
+      if (valueA === valueB) continue;
+      
+      // If either value is not an object, they're not equal
+      if (
+        (valueA !== null && typeof valueA !== 'object') ||
+        (valueB !== null && typeof valueB !== 'object')
+      ) {
+        return false;
+      }
+      
+      // Collect objects for deep comparison
+      keysToDeepCheck.push(key);
+    }
+
+    // Deep compare only the objects that weren't equal with ===
+    for (let i = 0; i < keysToDeepCheck.length; i++) {
+      const key = keysToDeepCheck[i];
+      if (!isEqual(objA[key], objB[key], seen)) {
         return false;
       }
     }
