@@ -82,6 +82,11 @@ h1 {
   border-bottom: none;
 }
 
+.todo-item.editing {
+  background-color: #f0f8ff;
+  border-left: 3px solid #805ad5;
+}
+
 .todo-item.completed .todo-text {
   text-decoration: line-through;
   color: #aaa;
@@ -104,6 +109,23 @@ h1 {
 
 .todo-delete-btn:hover {
   color: #e53e3e;
+}
+
+.todo-edit-btn {
+  background: none;
+  border: 1px solid #805ad5;
+  color: #805ad5;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+}
+
+.todo-edit-btn:hover {
+  background-color: #805ad5;
+  color: white;
 }
 
 .todo-filter {
@@ -135,4 +157,46 @@ h1 {
 .filters .filter-btn.active {
   border-color: #805ad5;
   color: #805ad5;
+}
+
+.todo-editor {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.todo-editor h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.todo-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.todo-editor-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.todo-editor-buttons .todo-add-btn {
+  border-radius: 4px;
+  flex: 1;
+}
+
+.todo-editor-buttons .todo-delete-btn {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.todo-editor-buttons .todo-delete-btn:hover {
+ background-color: #f0f0f0;
+  color: #333;
 }

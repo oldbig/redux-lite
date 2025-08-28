@@ -17,9 +17,5 @@ export const INIT_TODO_STORE = {
    * If not provided in the `ReduxLiteProvider`, it will not be included in the store,
    * which is useful for features that are enabled conditionally.
    */
-  todo: optional({
-    id: 0,
-    text: 'optional todo',
-    completed: false,
-  }),
+  todo: optional<Todo>(),
 };

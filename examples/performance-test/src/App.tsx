@@ -1,4 +1,3 @@
-import React from 'react'
 import { ReduxLiteProvider } from './store'
 import PerformanceTest from './components/PerformanceTest'
 import './App.css'

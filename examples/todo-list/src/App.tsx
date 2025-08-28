@@ -2,6 +2,7 @@ import { TodoInput } from './components/TodoInput';
 import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import './App.css';
+import { TodoEditor } from './components/TodoEditor';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       </header>
       <main>
         <TodoInput />
+        <TodoEditor />
         <TodoList />
         <TodoFilter />
       </main>

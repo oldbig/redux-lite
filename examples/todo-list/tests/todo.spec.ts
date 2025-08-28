@@ -147,3 +147,122 @@ test('should display correct active and completed counts using useSelector', asy
   await expect(page.locator('.todo-stats')).toContainText('Active: 1');
   await expect(page.locator('.todo-stats')).toContainText('Completed: 0');
 });
+
+test('should edit a todo using the optional todo feature', async ({ page }) => {
+  // Add a todo
+  const originalText = 'Original todo text';
+  await page.locator('.todo-input').fill(originalText);
+  await page.locator('.todo-add-btn').click();
+  
+  // Verify the todo is added
+  await expect(page.locator('.todo-item')).toHaveCount(1);
+  await expect(page.locator('.todo-text')).toHaveText(originalText);
+  
+  // Click the edit button
+  await page.locator('.todo-edit-btn').click();
+  
+  // Verify the todo editor is visible
+  await expect(page.locator('.todo-editor')).toBeVisible();
+  await expect(page.locator('.todo-editor input')).toHaveValue(originalText);
+  
+  // Edit the text
+  const newText = 'Edited todo text';
+  await page.locator('.todo-editor input').fill(newText);
+  
+  // Save the changes
+  await page.locator('.todo-editor .todo-add-btn').click();
+  
+  // Verify the todo editor is hidden
+  await expect(page.locator('.todo-editor')).not.toBeVisible();
+  
+ // Verify the todo text is updated
+  await expect(page.locator('.todo-text')).toHaveText(newText);
+});
+
+test('should cancel editing a todo', async ({ page }) => {
+  // Add a todo
+  const originalText = 'Original todo text';
+  await page.locator('.todo-input').fill(originalText);
+  await page.locator('.todo-add-btn').click();
+  
+  // Click the edit button
+  await page.locator('.todo-edit-btn').click();
+  
+  // Verify the todo editor is visible
+  await expect(page.locator('.todo-editor')).toBeVisible();
+  
+  // Edit the text
+  const newText = 'Edited todo text';
+  await page.locator('.todo-editor input').fill(newText);
+  
+  // Cancel the changes
+  await page.locator('.todo-editor .todo-delete-btn').click();
+  
+  // Verify the todo editor is hidden
+  await expect(page.locator('.todo-editor')).not.toBeVisible();
+  
+ // Verify the todo text is not changed
+  await expect(page.locator('.todo-text')).toHaveText(originalText);
+});
+
+test('should highlight the todo item being edited', async ({ page }) => {
+  // Add two todos
+  const firstTodoText = 'First todo';
+  const secondTodoText = 'Second todo';
+  await page.locator('.todo-input').fill(firstTodoText);
+  await page.locator('.todo-add-btn').click();
+  await page.locator('.todo-input').fill(secondTodoText);
+  await page.locator('.todo-add-btn').click();
+  
+  // Verify both todos are added
+  await expect(page.locator('.todo-item')).toHaveCount(2);
+  
+  // Verify neither todo is highlighted initially
+  const todoItems = page.locator('.todo-item');
+  await expect(todoItems.first()).not.toHaveClass(/editing/);
+  await expect(todoItems.nth(1)).not.toHaveClass(/editing/);
+  
+  // Click the edit button on the first todo
+  await page.locator('.todo-item').first().locator('.todo-edit-btn').click();
+  
+  // Verify the first todo is highlighted and the second is not
+  await expect(todoItems.first()).toHaveClass(/editing/);
+  await expect(todoItems.nth(1)).not.toHaveClass(/editing/);
+  
+  // Cancel the edit
+  await page.locator('.todo-editor .todo-delete-btn').click();
+  
+  // Verify neither todo is highlighted after canceling
+  await expect(todoItems.first()).not.toHaveClass(/editing/);
+  await expect(todoItems.nth(1)).not.toHaveClass(/editing/);
+});
+
+test('should remove highlight from todo item after saving', async ({ page }) => {
+  // Add a todo
+  const originalText = 'Original todo text';
+  await page.locator('.todo-input').fill(originalText);
+  await page.locator('.todo-add-btn').click();
+  
+  // Verify the todo is added
+  await expect(page.locator('.todo-item')).toHaveCount(1);
+  
+  // Verify the todo is not highlighted initially
+  const todoItem = page.locator('.todo-item');
+  await expect(todoItem).not.toHaveClass(/editing/);
+  
+  // Click the edit button
+  await page.locator('.todo-edit-btn').click();
+  
+  // Verify the todo is highlighted
+  await expect(todoItem).toHaveClass(/editing/);
+  
+  // Edit the text
+  const newText = 'Edited todo text';
+  await page.locator('.todo-editor input').fill(newText);
+  
+  // Save the changes
+  await page.locator('.todo-editor .todo-add-btn').click();
+  
+  // Verify the todo is not highlighted after saving
+  await expect(todoItem).not.toHaveClass(/editing/);
+});

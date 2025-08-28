@@ -36,3 +36,4 @@ function initiate<T extends Record<string, any>>(storeDefinition: T, options?: I
 }
 
 export { optional, initiate };
+export type { StateFromInit, Middleware } from './types';
