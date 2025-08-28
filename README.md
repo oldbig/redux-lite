@@ -153,7 +153,7 @@ A helper function to mark a state slice as optional. The state property will be 
 A hook for selecting and subscribing to a part of the state, with performance optimizations. It is similar to the `useSelector` hook in `react-redux`.
 
 - **`selector`**: `(store: TStore) => TSelected` - A function that takes the entire store state and returns the selected value.
-- **`equalityFn`** (optional): `(a: TSelected, b: TSelected) => boolean` - A function to compare the selected value. Defaults to `isEqual` (a deep equality check). The component will only re-render if this function returns `false`. In most cases, you don't need to provide this parameter. It's only necessary if the value returned by the `selector` contains function fields.
+- **`equalityFn`** (optional): `(a: TSelected, b: TSelected) => boolean` - A function to compare the selected value. Defaults to `isEqual` (a deep equality check). If the selector function returns the same result as the previous call (determined by this equality function), `useSelector` will return the previous result, which can help prevent unnecessary re-renders in the component that uses it. In most cases, you don't need to provide this parameter. It's only necessary if the value returned by the `selector` contains function fields.
 
 **When to use `useSelector`?**
 

@@ -153,7 +153,7 @@ const MyComponent = () => {
 一个用于选择和订阅 state 一部分的钩子，具有性能优化。它类似于 `react-redux` 中的 `useSelector` 钩子。
 
 - **`selector`**: `(store: TStore) => TSelected` - 一个函数，它接收整个 store 的 state 并返回所选的值。
-- **`equalityFn`** (可选): `(a: TSelected, b: TSelected) => boolean` - 一个用于比较所选值的函数。默认为 `isEqual`（一个深度相等检查）。只有当此函数返回 `false` 时，组件才会重新渲染。在大多数情况下，您不需要提供此参数。仅当 `selector` 返回的值中包含函数类型的字段时，才需要提供此函数。
+- **`equalityFn`** (可选): `(a: TSelected, b: TSelected) => boolean` - 一个用于比较所选值的函数。默认为 `isEqual`（一个深度相等检查）。如果 selector 函数返回的结果与上一次调用相同（通过此相等函数确定），`useSelector` 将返回之前的结果，这有助于防止使用它的组件进行不必要的重新渲染。在大多数情况下，您不需要提供此参数。仅当 `selector` 返回的值中包含函数类型的字段时，才需要提供此函数。
 
 **何时使用 `useSelector`？**
 
