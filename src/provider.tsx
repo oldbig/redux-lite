@@ -1,6 +1,6 @@
-import React, { useMemo, useReducer } from 'react';
+import React, { useMemo, useReducer, useRef } from 'react';
 import { StoreContext } from './context';
-import { StateFromInit, StateOverride, InitiateOptions } from './types';
+import { StateFromInit, StateOverride, InitiateOptions, MiddlewareAPI, Action } from './types';
 import { mergeState } from './utils';
 import { reducer } from './reducer';
 import { useReduxDevTools } from './devTools';
@@ -13,12 +13,68 @@ import { useReduxDevTools } from './devTools';
  */
 const useCreateReducer = <T extends Record<string, any>>(
   initialState: StateFromInit<T>,
-  options?: InitiateOptions
+  options?: InitiateOptions<StateFromInit<T>>
 ) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const enhancedDispatch = useReduxDevTools(state, dispatch, initialState, options?.devTools);
-  return [state, enhancedDispatch] as const;
+  const [state, dispatch] = useReducer<React.Reducer<StateFromInit<T>, Action<StateFromInit<T>>>>(reducer, initialState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const enhancedDispatch = useMemo(() => {
+    const { middlewares } = options || {};
+
+    const internalDispatch = (action: Action<StateFromInit<T>>) => {
+      const newState = reducer(stateRef.current, action);
+      stateRef.current = newState;
+      dispatch(action);
+      return action;
+    };
+
+    if (!middlewares || middlewares.length === 0) {
+      return internalDispatch;
+    }
+
+    let composedMiddlewareDispatch: (action: Action<StateFromInit<T>>) => Action<StateFromInit<T>>;
+
+    const middlewareAPI: MiddlewareAPI<StateFromInit<T>> = {
+      getState: () => stateRef.current,
+      dispatch: (action: Action<StateFromInit<T>>): Action<StateFromInit<T>> => {
+        return composedMiddlewareDispatch(action);
+      },
+    };
+
+    const baseMiddlewareDispatch = (action: Action<StateFromInit<T>>): Action<StateFromInit<T>> => {
+      internalDispatch(action);
+      return action;
+    };
+
+    composedMiddlewareDispatch = compose(...middlewares.map(m => m(middlewareAPI)))(baseMiddlewareDispatch);
+
+    return (action: Action<StateFromInit<T>>): Action<StateFromInit<T>> => {
+      return composedMiddlewareDispatch(action);
+    };
+  }, [options]);
+
+  const devToolsEnhancedDispatch = useReduxDevTools(state, enhancedDispatch, initialState, options?.devTools);
+
+  return [state, devToolsEnhancedDispatch] as const;
 };
+
+/**
+ * Composes single-argument functions from right to left. The rightmost
+ * function can take multiple arguments; the remaining functions must be unary.
+ *
+ * @param {...Function} funcs The functions to compose.
+ * @returns {Function} A function obtained by composing the argument functions
+ * from right to left. For example, compose(f, g, h) is identical to doing
+ * (...args) => f(g(h(...args))).
+ */
+function compose(...funcs: Function[]) {
+  if (funcs.length === 1) {
+    return funcs[0];
+  }
+
+  return funcs.reduce((a, b) => (...args: any[]) => a(b(...args)));
+}
 
 /**
  * StoreContextProvider component.
@@ -35,7 +91,7 @@ export const StoreContextProvider = <T extends Record<string, any>>({
 }: React.PropsWithChildren<{
   initialState: StateFromInit<T>;
   initStore?: StateOverride<StateFromInit<T>>;
-  options?: InitiateOptions;
+  options?: InitiateOptions<StateFromInit<T>>;
 }>) => {
   const finalInitialState = useMemo(() => {
     if (propInitStore) {

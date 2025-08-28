@@ -18,6 +18,7 @@
 - **🔒 Fully Type-Safe**: End-to-end type safety, from store definition to dispatchers, with excellent autocompletion.
 - **✅ Unbelievably Easy Testing**: A flexible provider makes mocking state for unit tests trivial.
 - **🐞 DevTools Ready**: Optional, zero-cost integration with Redux DevTools for a great debugging experience.
+- **🔌 Middleware Support**: Extend functionality with custom middlewares, similar to Redux.
 
 ## Installation
 
@@ -119,11 +120,14 @@ const MyComponent = () => {
 
 ## API
 
-### `initiate(storeDefinition)`
+### `initiate(storeDefinition, options?)`
 
 The sole entry point for the library.
 
 - **`storeDefinition`**: An object that defines the shape and initial values of your store.
+- **`options`** (optional): An object for additional configuration.
+  - `devTools` (optional): `boolean | { name: string }` - Enable or configure Redux DevTools.
+  - `middlewares` (optional): `Middleware[]` - An array of middlewares to apply.
 - **Returns**: An object containing `{ ReduxLiteProvider, useReduxLiteStore, useSelector }`.
  
  ### `useReduxLiteStore()`
@@ -180,9 +184,11 @@ const UserAge = () => {
 `redux-lite` is designed for high performance. The internal reducer uses smart value comparison to prevent state updates and re-renders when data has not changed.
 
 In a benchmark test that simulates a real-world scenario by calling a dispatch function repeatedly, `redux-lite` was able to perform:
-- **1,000 Counter Updates in approximately 15.2 milliseconds**
-- **1,000 Array Updates in approximately 2.7 milliseconds**
-- **10,000 Object Updates in approximately 45.3 milliseconds**
+- **10,000 Counter Updates in approximately 16.43 milliseconds** (0.0016ms per update)
+- **1,000 Array Push Operations in approximately 3.9 milliseconds** (0.0040ms per operation)
+- **10,000 Object Property Updates in approximately 15.48 milliseconds** (0.0015ms per update)
+- **10,000 Partial Object Updates in approximately 15.15 milliseconds** (0.0015ms per update)
+- **1,000 Deeply Nested Updates in approximately 3.42 milliseconds** (0.0034ms per update)
 
 This demonstrates its exceptional speed even when including React's rendering lifecycle.
 
@@ -290,6 +296,72 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
 
 </details>
 
+<details>
+<summary>Middleware</summary>
+
+`redux-lite` supports a middleware API that is almost identical to Redux's, allowing you to extend the store's capabilities for logging, handling async actions, and more.
+
+**How to Use Middleware**
+
+Pass an array of middlewares in the `options` object when calling `initiate`.
+
+```typescript
+import { initiate, Middleware } from '@oldbig/redux-lite';
+
+const logger: Middleware<any> = (api) => (next) => (action) => {
+  console.log('dispatching', action);
+  const result = next(action);
+  console.log('next state', api.getState());
+  return result;
+};
+
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
+  middlewares: [logger]
+});
+```
+
+**Writing Custom Middleware**
+
+A middleware is a higher-order function with the following signature:
+
+```typescript
+type Middleware<S> = (api: MiddlewareAPI<S>) => (next: (action: Action<S>) => Action<S>) => (action: Action<S>) => Action<S>;
+```
+
+- `api`: An object with two methods:
+  - `getState()`: Returns the current state.
+  - `dispatch(action)`: Dispatches an action. This will send the action to the start of the middleware chain.
+- `next`: A function that passes the action to the next middleware in the chain. You must call `next(action)` at some point for the action to eventually reach the reducer.
+- `action`: The action being dispatched.
+
+**Important Middleware Best Practices**
+
+1. **Avoid Infinite Loops**: Calling `api.dispatch(action)` within a middleware sends the action back to the beginning of the middleware chain. To prevent infinite loops, always place `api.dispatch` calls within appropriate conditional blocks:
+
+```typescript
+const conditionalDispatchMiddleware: Middleware<any> = (api) => (next) => (action) => {
+  // BAD - This will cause an infinite loop
+  // api.dispatch({ type: 'someAction', payload: 'data', isPartial: false });
+  
+  // GOOD - Place dispatch in a conditional block
+  if (action.type === 'user_login') {
+    api.dispatch({ type: 'notifications_show', payload: 'Welcome!', isPartial: false });
+  }
+  
+  return next(action);
+};
+```
+
+2. **Error Handling**: Wrap middleware logic in try-catch blocks to prevent one faulty middleware from breaking the entire chain.
+
+3. **Performance**: Minimize heavy computations in middlewares as they run synchronously and can block the UI thread.
+
+</details>
+
+## Examples
+
+- [Todo List App](./examples/todo-list/README.md) - A complete todo list application demonstrating core features
+- [Performance Test](./examples/performance-test/README.md) - Performance benchmarks demonstrating the efficiency of redux-lite
 ## Support This Project
 
 If you find `redux-lite` helpful and would like to support its development, please consider:

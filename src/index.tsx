@@ -12,7 +12,7 @@ import { createUseSelector } from './useSelector';
  * @param options Optional configuration for the store, including DevTools.
  * @returns An object containing the ReduxLiteProvider, useReduxLiteStore hook, and useSelector hook.
  */
-function initiate<T extends Record<string, any>>(storeDefinition: T, options?: InitiateOptions): InitiateReturnType<T> {
+function initiate<T extends Record<string, any>>(storeDefinition: T, options?: InitiateOptions<StateFromInit<T>>): InitiateReturnType<T> {
   // Create the initial state by unwrapping optional values
   const initialState = createInitialState(storeDefinition);
 

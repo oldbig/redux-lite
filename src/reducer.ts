@@ -10,10 +10,13 @@ import { isEqual } from './utils';
  * @returns The new state or the original state if no change occurred.
  */
 export const reducer = <T extends Record<string, any>>(state: StateFromInit<T>, action: Action<StateFromInit<T>>): StateFromInit<T> => {
+  // Destructure with type assertion for clarity, as TypeScript infers based on the union
   const { type, payload, isPartial } = action;
   const oldSlice = state[type];
 
   // Resolve the new value, whether it's a direct value or from a function
+  // When isPartial is true, payload is Partial<T[type]>, when false, payload is T[type]
+  // We need to handle both cases and also the functional update.
   const newSlice = typeof payload === 'function' ? payload(oldSlice, state) : payload;
 
   if (isPartial) {

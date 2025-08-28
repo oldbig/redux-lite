@@ -23,12 +23,12 @@ export const useReduxLiteStore = <T extends Record<string, any>>(): ReduxLiteSto
       const capitalizedKey = (key.charAt(0).toUpperCase() + key.slice(1)) as CapitalizeString<typeof key>;
 
       // Create dispatchUser
-      acc[`dispatch${capitalizedKey}`] = (payload: any) => {
+      acc[`dispatch${capitalizedKey}`] = (payload: T[typeof key] | ((prev: T[typeof key], fullState: StateFromInit<T>) => T[typeof key])) => {
         contextRef.current.dispatch({ type: key, payload, isPartial: false });
       };
 
       // Create dispatchPartialUser
-      acc[`dispatchPartial${capitalizedKey}`] = (payload: any) => {
+      acc[`dispatchPartial${capitalizedKey}`] = (payload: Partial<T[typeof key]> | ((prev: T[typeof key], fullState: StateFromInit<T>) => Partial<T[typeof key]>)) => {
         contextRef.current.dispatch({ type: key, payload, isPartial: true });
       };
 

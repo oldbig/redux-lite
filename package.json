@@ -10,7 +10,8 @@
     "dev": "tsup src/index.tsx --format cjs,esm --dts --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage && make-coverage-badge --report-path coverage/coverage-summary.json --output-path assets/coverage.svg",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "test:performance": "cd examples/performance-test && npm run test:performance"
   },
   "keywords": [
     "react",

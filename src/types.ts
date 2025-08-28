@@ -50,11 +50,50 @@ export type StateFromInit<T> = {
 /**
  * The shape of the action for the reducer.
  */
-export type Action<TState> = {
-  type: keyof TState;
-  payload: any;
-  isPartial: boolean;
+type PayloadType<TState, K extends keyof TState, IsPartial extends boolean> =
+  IsPartial extends true
+    ? Partial<TState[K]>
+    : TState[K];
+
+/**
+ * The shape of the action for the reducer.
+ * This is a union type that precisely defines the payload based on `isPartial`.
+ */
+export type Action<TState> =
+  | {
+      [K in keyof TState]: {
+        type: K;
+        payload: PayloadType<TState, K, false>;
+        isPartial: false;
+      };
+    }[keyof TState]
+  | {
+      [K in keyof TState]: {
+        type: K;
+        payload: PayloadType<TState, K, true>;
+        isPartial: true;
+      };
+    }[keyof TState];
+
+/**
+ * The API object provided to each middleware.
+ * `getState` returns the current state.
+ * `dispatch` sends an action to the next middleware in the chain.
+ */
+export type MiddlewareAPI<S> = {
+  getState: () => S;
+  dispatch: (action: Action<S>) => Action<S>;
 };
+
+/**
+ * The function signature for a middleware.
+ * It is a higher-order function that composes with other middlewares.
+ */
+export type Middleware<S> = (
+  api: MiddlewareAPI<S>
+) => (
+  next: (action: Action<S>) => Action<S>
+) => (action: Action<S>) => Action<S>;
 
 /**
  * The type for the dispatch functions, e.g., `dispatchUser`.
@@ -99,12 +138,17 @@ export type DevToolsOptions = {
 /**
  * Options for the `initiate` function.
  */
-export type InitiateOptions = {
+export type InitiateOptions<S> = {
   /**
    * Configuration for Redux DevTools.
    * Can be a boolean to enable/disable or an object for more specific options.
    */
   devTools?: boolean | DevToolsOptions;
+  /**
+   * An array of middlewares to apply to the store.
+   * Middlewares are applied in the order they are provided.
+   */
+  middlewares?: Middleware<S>[];
 };
 
 /**

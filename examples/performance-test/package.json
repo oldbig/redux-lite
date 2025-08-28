@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "cd ../.. && npm run build && cd - && vite --port 5175",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test:performance": "node scripts/run-performance-test.js"
+    "test:performance": "cd ../.. && npm run build && cd - && node scripts/run-performance-test.cjs"
   },
   "dependencies": {
     "@oldbig/redux-lite": "file:../..",

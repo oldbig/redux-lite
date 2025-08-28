@@ -36,4 +36,5 @@ coverage/
 
 # e2e test report
 playwright-report/
-
+test-results/
+results/

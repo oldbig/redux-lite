@@ -18,6 +18,7 @@
 - **🔒 完全类型安全**：从 store 定义到 dispatchers，提供端到端的类型安全和卓越的自动补全体验。
 - **✅ 难以置信的简单测试**：灵活的 Provider 让模拟单元测试的 state 变得轻而易举。
 - **🐞 DevTools 就绪**：可选的、零成本的 Redux DevTools 集成，提供顶级的调试体验。
+- **🔌 中间件支持**：通过自定义中间件扩展功能，类似于 Redux。
 
 ## 安装
 
@@ -119,11 +120,14 @@ const MyComponent = () => {
 
 ## API
 
-### `initiate(storeDefinition)`
+### `initiate(storeDefinition, options?)`
 
 本库唯一的入口点。
 
 - **`storeDefinition`**: 一个定义了您 store 结构和初始值的对象。
+- **`options`** (可选): 用于附加配置的对象。
+  - `devTools` (可选): `boolean | { name: string }` - 启用或配置 Redux DevTools。
+  - `middlewares` (可选): `Middleware[]` - 要应用的中间件数组。
 - **返回**: 一个包含 `{ ReduxLiteProvider, useReduxLiteStore, useSelector }` 的对象。
  
  ### `useReduxLiteStore()`
@@ -180,9 +184,11 @@ const UserAge = () => {
 `redux-lite` 为高性能而设计。其内部的 reducer 使用了智能的值比较机制，当数据没有实际改变时，可以有效避免不必要的 state 更新和组件重新渲染。
 
 在一个模拟真实世界场景、重复调用 dispatch 函数的基准测试中，`redux-lite` 能够实现：
-- **1,000 次计数器更新约需 15.2 毫秒**
-- **1,000 次数组更新约需 2.7 毫秒**
-- **10,000 次对象更新约需 45.3 毫秒**
+- **10,000 次计数器更新约需 16.43 毫秒** (每次更新 0.0016 毫秒)
+- **1,000 次数组推送操作约需 3.99 毫秒** (每次操作 0.0040 毫秒)
+- **10,000 次对象属性更新约需 15.48 毫秒** (每次更新 0.0015 毫秒)
+- **10,000 次部分对象更新约需 15.15 毫秒** (每次更新 0.0015 毫秒)
+- **1,000 次深度嵌套更新约需 3.42 毫秒** (每次更新 0.0034 毫秒)
 
 这证明了它即使在包含 React 渲染生命周期的开销下，依然拥有卓越的速度。
 
@@ -290,7 +296,73 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
 
 </details>
 
+<details>
+<summary>中间件</summary>
 
+`redux-lite` 支持与 Redux 几乎完全相同的中间件 API，允许您扩展 store 的能力，用于日志记录、处理异步 action 等。
+
+**如何使用中间件**
+
+在调用 `initiate` 时，在 `options` 对象中传递一个中间件数组。
+
+```typescript
+import { initiate, Middleware } from '@oldbig/redux-lite';
+
+const logger: Middleware<any> = (api) => (next) => (action) => {
+  console.log('dispatching', action);
+  const result = next(action);
+  console.log('next state', api.getState());
+  return result;
+};
+
+const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
+  middlewares: [logger]
+});
+```
+
+**编写自定义中间件**
+
+中间件是一个高阶函数，其签名如下：
+
+```typescript
+type Middleware<S> = (api: MiddlewareAPI<S>) => (next: (action: Action<S>) => Action<S>) => (action: Action<S>) => Action<S>;
+```
+
+- `api`: 一个包含两个方法的对象：
+  - `getState()`: 返回当前 state。
+  - `dispatch(action)`: 派发一个 action。这会将 action 发送到中间件链的开始。
+- `next`: 一个将 action 传递给链中的下一个中间件的函数。您必须在某个时刻调用 `next(action)`，以确保 action 最终能到达 reducer。
+- `action`: 正在派发的 action。
+
+**重要的中间件最佳实践**
+
+1. **避免无限循环**：在中间件中调用 `api.dispatch(action)` 会将 action 重新发送到中间件链的开头。为了避免无限循环，必须将 `api.dispatch` 调用放在适当的条件块中：
+
+```typescript
+const conditionalDispatchMiddleware: Middleware<any> = (api) => (next) => (action) => {
+  // 错误的做法 - 这会导致无限循环
+  // api.dispatch({ type: 'someAction', payload: 'data', isPartial: false });
+  
+  // 正确的做法 - 将 dispatch 放在条件块中
+  if (action.type === 'user_login') {
+    api.dispatch({ type: 'notifications_show', payload: '欢迎!', isPartial: false });
+  }
+  
+  return next(action);
+};
+```
+
+2. **错误处理**：将中间件逻辑包装在 try-catch 块中，以防止一个有问题的中间件破坏整个链条。
+
+3. **性能**：尽量减少中间件中的重量级计算，因为它们是同步运行的，可能会阻塞 UI 线程。
+
+</details>
+
+
+## 示例
+
+- [待办事项应用](./examples/todo-list/README.md) - 一个完整的待办事项应用程序，演示核心功能
+- [性能测试](./examples/performance-test/README.md) - 性能基准测试，展示 redux-lite 的效率
 ## 支持本项目
 
 如果您觉得 `redux-lite` 对您有帮助，并希望支持本项目的开发，请考虑：
