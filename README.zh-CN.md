@@ -53,7 +53,8 @@ export const STORE_DEFINITION = {
   counter: 0,
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
+export const { ReduxLiteProvider, useReduxLiteStore } = 
+  initiate(STORE_DEFINITION);
 ```
 
 ### 2. 使用 `Provider` 包装你的应用
@@ -356,11 +357,182 @@ const conditionalDispatchMiddleware: Middleware<any> = (api) => (next) => (actio
 
 3. **性能**：尽量减少中间件中的重量级计算，因为它们是同步运行的，可能会阻塞 UI 线程。
 
+
 </details>
 
+<details>
+<summary>异步操作</summary>
+
+`redux-lite` 通过异步 dispatcher 提供了对异步操作的内置支持。对于每个 state 切片，都会生成两个额外的异步 dispatcher：
+
+- `dispatchAsyncUser(payload)`: 用于异步全量更新。
+- `dispatchAsyncPartialUser(payload)`: 用于异步部分更新。
+
+### 使用模式
+
+#### 1. 直接 Promise
+
+使用异步 dispatcher 最简单的方法是直接传递一个 Promise：
+
+```tsx
+const UserProfile = () => {
+  const { user, dispatchAsyncUser } = useReduxLiteStore();
+  
+  const loadUser = async () => {
+    // 从 API 获取用户数据
+    const response = await fetch(`/api/users/123`);
+    const userData: Promise<User> = response.json();
+    
+    // 派发获取的数据
+    await dispatchAsyncUser(userData);
+  };
+  
+  return (
+    <div>
+      <h2>用户: {user.name}</h2>
+      <button onClick={loadUser}>加载用户</button>
+    </div>
+  );
+};
+```
+
+#### 2. 异步函数回调
+
+对于更复杂的异步操作，您可以传递一个接收 getter 函数的异步函数：
+
+```tsx
+const UserProfile = () => {
+  const { user, dispatchAsyncUser } = useReduxLiteStore();
+  
+  const updateUserWithValidation = async () => {
+    await dispatchAsyncUser(async (getPrevUser, getFullState) => {
+      // 获取当前用户数据
+      const currentUser = getPrevUser();
+      
+      // 执行异步验证
+      const isValid = await validateUser(currentUser);
+      
+      if (!isValid) {
+        throw new Error('用户验证失败');
+      }
+      
+      // 获取更新后的数据
+      const response = await fetch(`/api/users/${currentUser.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(currentUser)
+      });
+      // 注意：在 await 之后，state 可能已经发生了变化。
+      // 务必调用 getPrevUser() 和 getFullState() 来获取最新状态。
+      
+      const updatedUser: User = await response.json();
+      return updatedUser;
+    });
+  };
+  
+  return (
+    <div>
+      <h2>用户: {user.name}</h2>
+      <button onClick={updateUserWithValidation}>更新用户</button>
+    </div>
+  );
+};
+```
+
+#### 3. 部分更新
+
+异步部分更新的工作方式类似，但只更新 state 切片的一部分：
+
+```tsx
+const TaskManager = () => {
+  const { task, dispatchAsyncPartialTask } = useReduxLiteStore();
+  
+  const updateTaskStatus = async () => {
+    await dispatchAsyncPartialTask(async (getPrevTask) => {
+      // 获取当前任务数据
+      const currentTask = getPrevTask();
+      
+      // 更新任务状态
+      const response = await fetch(`/api/tasks/${currentTask.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'completed' })
+      });
+      // 注意：在 await 之后，state 可能已经发生了变化。
+      // 务必调用 getPrevTask() 来获取最新状态。
+      
+      const updatedTask = await response.json();
+      
+      // 只返回我们想要更新的字段
+      return {
+        status: updatedTask.status,
+        completedAt: updatedTask.completedAt
+      };
+    });
+  };
+  
+  return (
+    <div>
+      <h3>任务: {task.title}</h3>
+      <p>状态: {task.status}</p>
+      <button onClick={updateTaskStatus}>完成任务</button>
+    </div>
+  );
+};
+```
+
+### 错误处理
+
+异步操作的错误会被传播给调用者，从而允许进行适当的错误处理：
+
+```tsx
+const DataComponent = () => {
+  const { data, dispatchAsyncData } = useReduxLiteStore();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      await dispatchAsyncData(fetchDataFromAPI());
+    } catch (err) {
+      setError(err.message || '加载数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <div>
+      {error && <div>错误: {error}</div>}
+      <button onClick={loadData} disabled={loading}>
+        {loading ? '加载中...' : '加载数据'}
+      </button>
+    </div>
+  );
+};
+```
+
+### 中间件集成
+
+异步操作与中间件无缝协作。异步 dispatcher 遵循与同步 dispatcher 相同的中间件链：
+
+```typescript
+const loggingMiddleware: Middleware<any> = (api) => (next) => (action) => {
+  console.log('派发 action:', action);
+  const result = next(action);
+  console.log('派发后的状态:', api.getState());
+  return result;
+};
+
+const { ReduxLiteProvider } = initiate(STORE_DEFINITION, {
+  middlewares: [loggingMiddleware]
+});
+```
+
+</details>
 
 ## 示例
-
 - [待办事项应用](./examples/todo-list/README.md) - 一个完整的待办事项应用程序，演示核心功能
 - [性能测试](./examples/performance-test/README.md) - 性能基准测试，展示 redux-lite 的效率
 ## 支持本项目
