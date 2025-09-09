@@ -53,7 +53,8 @@ export const STORE_DEFINITION = {
   counter: 0,
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
+export const { ReduxLiteProvider, useReduxLiteStore } = 
+  initiate(STORE_DEFINITION);
 ```
 
 ### 2. 使用 `Provider` 包装你的应用
@@ -178,6 +179,65 @@ const UserAge = () => {
    return <div>{userAge}</div>
 }
 ```
+
+## 处理异步操作
+
+`redux-lite` 通过结合标准的 JavaScript `async/await` 语法和其 `dispatch` 的函数式更新形式，以一种优雅而简单的方式处理异步操作。这种模式非常直观、健壮，并且不需要学习任何新的 API。
+
+**推荐模式：**
+
+1.  使用 `async/await` 来处理你的异步逻辑（例如，获取数据）。
+2.  调用同步的 `dispatch` 函数，并传入一个更新函数来应用结果。这能确保您始终基于最新的 state 工作，从而避免竞态条件。
+
+**示例：获取用户并更新 store**
+
+```tsx
+import { useReduxLiteStore } from './store';
+import { api } from './api';
+
+const UserComponent = () => {
+  const { user, dispatchUser, dispatchPartialUser } = useReduxLiteStore();
+
+  const handleFetchUser = async () => {
+    try {
+      // 1. 等待你的 API 返回数据
+      const fetchedUser = await api.fetchUser(123);
+
+      // 2. Dispatch 结果以全量更新 user 切片
+      dispatchUser(fetchedUser);
+
+    } catch (error) {
+      console.error("获取用户失败:", error);
+    }
+  };
+  
+  const handleIncrementUserAge = async () => {
+    try {
+      // 1. 从你的 API 等待需要变更的数据
+      const { ageIncrement } = await api.fetchAgeIncrement(123); // 假设返回 { ageIncrement: 1 }
+
+      // 2. 使用函数式更新，只返回需要变更的部分对象。
+      // redux-lite 会自动将这个部分对象与现有的 user state 合并。
+      dispatchPartialUser(currentUser => ({
+        age: currentUser.age + ageIncrement,
+      }));
+
+    } catch (error) {
+      console.error("增加用户年龄失败:", error);
+    }
+  };
+
+  return (
+    <div>
+      <p>当前用户: {user.name}</p>
+      <button onClick={handleFetchUser}>获取用户</button>
+      <button onClick={handleIncrementUserAge}>增加用户年龄</button>
+    </div>
+  );
+};
+```
+
+这种模式代码清晰，易于测试，并且在不增加任何复杂性的情况下，充分利用了 `redux-lite` 类型安全的、函数式的 dispatchers 的全部功能。
 
 ## 性能
 

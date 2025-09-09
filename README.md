@@ -53,7 +53,8 @@ export const STORE_DEFINITION = {
   counter: 0,
 };
 
-export const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION);
+export const { ReduxLiteProvider, useReduxLiteStore } = 
+  initiate(STORE_DEFINITION);
 ```
 
 ### 2. Wrap your app with the `Provider`
@@ -178,6 +179,65 @@ const UserAge = () => {
    return <div>{userAge}</div>
 }
 ```
+
+## Handling Asynchronous Operations
+
+`redux-lite` handles asynchronous operations gracefully and simply by leveraging standard JavaScript `async/await` syntax combined with the functional update form of its dispatchers. This approach is intuitive, robust, and requires no new APIs to learn.
+
+**Recommended Pattern:**
+
+1.  Use `async/await` to handle your asynchronous logic (e.g., fetching data).
+2.  Call the synchronous `dispatch` function with an updater function to apply the result. This ensures you are always working with the latest state, avoiding race conditions.
+
+**Example: Fetching a user and updating the store**
+
+```tsx
+import { useReduxLiteStore } from './store';
+import { api } from './api';
+
+const UserComponent = () => {
+  const { user, dispatchUser, dispatchPartialUser } = useReduxLiteStore();
+
+  const handleFetchUser = async () => {
+    try {
+      // 1. Await the data from your API
+      const fetchedUser = await api.fetchUser(123);
+
+      // 2. Dispatch the result to fully update the user slice
+      dispatchUser(fetchedUser);
+
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
+  };
+  
+  const handleIncrementUserAge = async () => {
+    try {
+      // 1. Await the change from your API
+      const { ageIncrement } = await api.fetchAgeIncrement(123); // e.g., returns { ageIncrement: 1 }
+
+      // 2. Use a functional update and return only the partial object.
+      // redux-lite will automatically merge this with the existing user state.
+      dispatchPartialUser(currentUser => ({
+        age: currentUser.age + ageIncrement,
+      }));
+
+    } catch (error) {
+      console.error("Failed to increment user age:", error);
+    }
+  };
+
+  return (
+    <div>
+      <p>Current User: {user.name}</p>
+      <button onClick={handleFetchUser}>Fetch User</button>
+      <button onClick={handleIncrementUserAge}>Increment User Age</button>
+    </div>
+  );
+};
+```
+
+This pattern is clean, easy to test, and leverages the full power of `redux-lite`'s type-safe, functional dispatchers without adding any complexity.
 
 ## Performance
 
