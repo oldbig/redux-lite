@@ -117,25 +117,7 @@ export type Dispatchers<T> = {
   [K in keyof T & string as `dispatch${CapitalizeString<K>}`]: Dispatcher<T[K], T>;
 } & {
   [K in keyof T & string as `dispatchPartial${CapitalizeString<K>}`]: PartialDispatcher<T[K], T>;
-} & {
-  [K in keyof T & string as `dispatchAsync${CapitalizeString<K>}`]: AsyncDispatcher<T[K], T>;
-} & {
-  [K in keyof T & string as `dispatchAsyncPartial${CapitalizeString<K>}`]: AsyncPartialDispatcher<T[K], T>;
 };
-
-/**
- * The type for the async dispatch functions, e.g., `dispatchAsyncUser`.
- */
-export type AsyncDispatcher<T, S> = (
-  payload: Promise<T> | ((getPrev: () => T, getFullState: () => S) => Promise<T>)
-) => Promise<void>;
-
-/**
- * The type for the async partial dispatch functions, e.g., `dispatchAsyncPartialUser`.
-*/
-export type AsyncPartialDispatcher<T, S> = (
-  payload: Promise<Partial<T>> | ((getPrev: () => T, getFullState: () => S) => Promise<Partial<T>>)
-) => Promise<void>;
 
 /**
  * The final type of the store object returned by the `useReduxLiteStore` hook.

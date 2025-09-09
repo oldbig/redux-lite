@@ -32,32 +32,6 @@ export const useReduxLiteStore = <T extends Record<string, any>>(): ReduxLiteSto
         contextRef.current.dispatch({ type: key, payload, isPartial: true });
       };
 
-      // Create dispatchAsyncUser
-      acc[`dispatchAsync${capitalizedKey}`] = async (payload: Promise<T[typeof key]> | ((getPrev: () => T[typeof key], getFullState: () => StateFromInit<T>) => Promise<T[typeof key]>)) => {
-        try {
-          const resolvedPayload = typeof payload === 'function'
-            ? await payload(() => contextRef.current.state[key], () => contextRef.current.state)
-            : await payload;
-          contextRef.current.dispatch({ type: key, payload: resolvedPayload, isPartial: false });
-        } catch (error) {
-          // Re-throw the error to allow proper error handling by the caller
-          throw error;
-        }
-      };
-
-      // Create dispatchAsyncPartialUser
-      acc[`dispatchAsyncPartial${capitalizedKey}`] = async (payload: Promise<Partial<T[typeof key]>> | ((getPrev: () => T[typeof key], getFullState: () => StateFromInit<T>) => Promise<Partial<T[typeof key]>>)) => {
-        try {
-          const resolvedPayload = typeof payload === 'function'
-            ? await payload(() => contextRef.current.state[key], () => contextRef.current.state)
-            : await payload;
-          contextRef.current.dispatch({ type: key, payload: resolvedPayload, isPartial: true });
-        } catch (error) {
-          // Re-throw the error to allow proper error handling by the caller
-          throw error;
-        }
-      };
-
       return acc;
     }, {} as { [key: string]: any }); // Use a flexible type for the accumulator
 
