@@ -338,9 +338,13 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: true
 });
 
-// Or provide a name for your store instance
+// Or provide a name for your store instance and other options
 const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
-  devTools: { name: 'MyAppStore' }
+  devTools: {
+    name: 'MyAppStore',
+    maxAge: 50, // Limit the number of actions to store
+    latency: 500 // Batch actions with a 500ms delay
+  }
 });
 ```
 

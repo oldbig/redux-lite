@@ -133,6 +133,17 @@ export type DevToolsOptions = {
    * The name of the store instance to display in the DevTools.
    */
   name?: string;
+  /**
+   * The maximum number of actions to be stored in the history tree.
+   * The oldest actions are removed once `maxAge` is reached.
+   * @default 50
+   */
+  maxAge?: number;
+  /**
+   * The latency for batching actions.
+   * @default 500ms
+   */
+  latency?: number;
 };
 
 /**

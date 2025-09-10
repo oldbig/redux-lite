@@ -338,9 +338,13 @@ const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
   devTools: true
 });
 
-// 或为您的 store 实例提供一个名称
+// 或为您的 store 实例提供一个名称和其他选项
 const { ReduxLiteProvider, useReduxLiteStore } = initiate(STORE_DEFINITION, {
-  devTools: { name: 'MyAppStore' }
+  devTools: {
+    name: 'MyAppStore',
+    maxAge: 50, // 限制存储的 action 数量
+    latency: 500 // 批量处理 action 的延迟时间（毫秒）
+  }
 });
 ```
 
